@@ -2,8 +2,10 @@ spring:
   # DS de desarrollo
   datasource:
     driverClassName: oracle.jdbc.OracleDriver
-    url: jdbc:oracle:thin:@localhost:1521:orcl
-    username: MARCELO
+#    url: jdbc:oracle:thin:@localhost:1521:orcl
+#    username: MARCELO #work
+    url: jdbc:oracle:thin:@localhost:1521:TFG 
+    username: MARCE_PC #home
     password: 123456
     
   jpa:
