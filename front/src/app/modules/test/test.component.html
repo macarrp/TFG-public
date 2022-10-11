@@ -1,1 +1,12 @@
-<p>test works!</p>
+<input type="file" class="file-input" (change)="onFileSelected($event)" #fileUpload>
+
+<div class="file-upload">
+    <button mat-mini-fab color="primary" class="upload-btn" (click)="fileUpload.click()">
+        <mat-icon>attach_file</mat-icon>
+    </button>
+
+   {{ fileName || "Ningún archivo seleccionado." }}
+</div>
+
+<button (click)="uploadFile()" [disabled]="!file">Confirmar</button>
+
