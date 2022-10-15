@@ -12,6 +12,9 @@ export class TestComponent implements OnInit {
   fileName = '';
   file: File;
 
+  errorMessage = '';
+  successMessage = '';
+
   constructor(private readonly testService: TestService) { }
 
   ngOnInit(): void {
@@ -22,18 +25,13 @@ export class TestComponent implements OnInit {
 
     if (this.file) {
       this.fileName = this.file.name;
-
-      // const formData = new FormData();
-      // formData.append("thumbnail", file);
-      // const upload$ = this.http.post("/api/thumbnail-upload", formData);
-      // upload$.subscribe();
-
-      console.log('nombreFich', this.fileName);
     }
   }
 
   uploadFile() {
-    console.log('fich', this.file);
+    if(this.fileName == null || this.fileName == undefined)
+      return;
+
     this.testService.uploadFile(this.file);
   }
 
