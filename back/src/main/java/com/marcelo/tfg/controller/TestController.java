@@ -1,19 +1,18 @@
 package com.marcelo.tfg.controller;
 
 import java.io.File;
-import java.io.IOException;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.core.MediaType;
 
-import org.apache.commons.io.FileUtils;
 import org.pentaho.di.core.KettleEnvironment;
 import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.core.exception.KettleMissingPluginsException;
-import org.pentaho.di.core.exception.KettleXMLException;
 import org.pentaho.di.core.logging.LogLevel;
 import org.pentaho.di.trans.Trans;
 import org.pentaho.di.trans.TransMeta;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -26,25 +25,27 @@ import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 @Slf4j
 @RequestMapping("/test")
 public class TestController {
 
-	private File kettleFileDirectory = new File("src/main/kettle-jobs");
+	private File kettleFileDirectory = new File("src/main/kettle-jobs"); // CONST ?
 
 	@Operation(summary = "Test kettle")
 	@PostMapping("/kettle")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
-	public String testKettle(@RequestParam("file") MultipartFile file) {
+	public ResponseEntity<String> testKettle(@RequestParam("file") MultipartFile file) {
 
 		File temp = FileUploadUtils.convertMultipartFileToFile(kettleFileDirectory, file);
 
 		if (temp == null)
-			return "Error";
+			return new ResponseEntity<String>("No se ha encontrado el archivo", HttpStatus.BAD_REQUEST);
 
-		Boolean isFinished = executeKettleTransformation(temp);
+		Boolean isFinished = executeKettleTransformation(temp); // Revisar 
 		
-		return isFinished ? "Transformación ejecutada con éxito" : "No pudo completarse la transformación";
+		return isFinished ? new ResponseEntity<String>("La transformación se ha ejecutado con éxito", HttpStatus.OK)
+		: new ResponseEntity<String>("No se ha terminado la transformación", HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
 	private Boolean executeKettleTransformation(File kettleJob)  {

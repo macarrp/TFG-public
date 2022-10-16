@@ -12,15 +12,13 @@ export class TestService {
 
   constructor(private readonly http: HttpClient) { }
 
-  async uploadFile(file) {
+  async uploadFile(file): Promise<string> {
     const formData = new FormData();
 
     formData.append("file", file);
 
-    const promise = new Promise((resolve, reject) => {
-      this.http.post(`${this.backendUrl}test/kettle`, formData).subscribe()
-    });
-
-    // return 
+    return new Promise(() => {
+      this.http.post(`${this.backendUrl}test/kettle`, formData).toPromise();
+    })
   }
 }

@@ -1,24 +1,28 @@
 <section>
-    <div class="alert alert-success">
-        Operación realizada con <strong>Éxito!</strong>
+    <div class="center-horizontal center-vertical">
+
+        <div *ngIf="successMessage != null"  class="alert alert-success">
+            <strong>¡Éxito! </strong> {{ successMessage }}
+        </div>
+
+        <div *ngIf="errorMessage != null" class="alert alert-danger" role="alert">
+            <strong>ERROR:</strong> {{ errorMessage }}
+        </div>
+
+        <input type="file" class="file-input" (change)="onFileSelected($event)" #fileUpload>
+
+        <div class="file-upload">
+            <button mat-mini-fab color="primary" class="upload-btn" (click)="fileUpload.click()">
+                <mat-icon>attach_file</mat-icon>
+            </button>
+
+            {{ fileName || "Ningún archivo seleccionado." }}
+        </div>
+
+        <div class="mt-2">
+            <button (click)="uploadFile()" [disabled]="!file">Confirmar</button>
+        </div>
     </div>
-
-    <div class="alert alert-danger alert-dismissible fade show">
-        Operación realizada con <strong>Éxito!</strong>
-        <button type="button" class="close" data-dismiss="alert">&times;</button>
-      </div>
-
-    <input type="file" class="file-input" (change)="onFileSelected($event)" #fileUpload>
-
-    <div class="file-upload">
-        <button mat-mini-fab color="primary" class="upload-btn" (click)="fileUpload.click()">
-            <mat-icon>attach_file</mat-icon>
-        </button>
-
-        {{ fileName || "Ningún archivo seleccionado." }}
-    </div>
-
-    <button (click)="uploadFile()" [disabled]="!file">Confirmar</button>
 
 
 </section>

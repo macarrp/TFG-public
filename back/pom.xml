@@ -94,6 +94,11 @@
 			<artifactId>classic-extensions-kettle</artifactId>
 			<version>9.3.0.0-428</version>
 		</dependency>
+		<dependency>
+		    <groupId>pentaho-kettle</groupId>
+		    <artifactId>kettle-xml-plugin</artifactId>
+		    <version>7.1.0.19-174</version>
+		</dependency>
 		
 	</dependencies>
 

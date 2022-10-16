@@ -19,7 +19,7 @@ public class FileUploadUtils {
 			temp = new File(baseDirectory.getCanonicalPath() + File.separator + fileToConvert.getOriginalFilename());
 			fileToConvert.transferTo(temp);
 		} catch (IOException e) {
-			log.error("Error al convertir fichero");
+			log.error("Error al convertir fichero " + fileToConvert.getName());
 			e.printStackTrace();
 		}
 		

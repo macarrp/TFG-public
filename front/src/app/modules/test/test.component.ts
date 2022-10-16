@@ -12,8 +12,8 @@ export class TestComponent implements OnInit {
   fileName = '';
   file: File;
 
-  errorMessage = '';
-  successMessage = '';
+  errorMessage: string = null;
+  successMessage: string = null;
 
   constructor(private readonly testService: TestService) { }
 
@@ -29,10 +29,18 @@ export class TestComponent implements OnInit {
   }
 
   uploadFile() {
-    if(this.fileName == null || this.fileName == undefined)
+    if (this.fileName == null || this.fileName == undefined)
       return;
 
-    this.testService.uploadFile(this.file);
+    this.testService.uploadFile(this.file)
+      .then((response: string) => {
+        console.log('response', response);
+        this.successMessage = response;
+      })
+      .catch((err) => {
+        console.log('err', err);
+        this.errorMessage = err;
+      })
   }
 
 }
