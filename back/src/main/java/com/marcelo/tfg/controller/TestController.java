@@ -2,9 +2,7 @@ package com.marcelo.tfg.controller;
 
 import java.io.File;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.core.MediaType;
-
+import org.pentaho.di.core.Const;
 import org.pentaho.di.core.KettleEnvironment;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.logging.LogLevel;
@@ -21,7 +19,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.marcelo.tfg.Utils.FileUploadUtils;
 
-import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
@@ -32,11 +29,10 @@ public class TestController {
 
 	private File kettleFileDirectory = new File("src/main/kettle-jobs"); // CONST ?
 
-	@Operation(summary = "Test kettle")
+//	@Operation(summary = "Test kettle")
 	@PostMapping("/kettle")
-	@Consumes(MediaType.MULTIPART_FORM_DATA)
-	public ResponseEntity<String> testKettle(@RequestParam("file") MultipartFile file) {
-
+//	@Consumes(MediaType.MULTIPART_FORM_DATA)
+	public ResponseEntity<String> testKettle(@RequestParam MultipartFile file) {		
 		File temp = FileUploadUtils.convertMultipartFileToFile(kettleFileDirectory, file);
 
 		if (temp == null)
@@ -44,13 +40,20 @@ public class TestController {
 
 		Boolean isFinished = executeKettleTransformation(temp); // Revisar 
 		
-		return isFinished ? new ResponseEntity<String>("La transformación se ha ejecutado con éxito", HttpStatus.OK)
-		: new ResponseEntity<String>("No se ha terminado la transformación", HttpStatus.INTERNAL_SERVER_ERROR);
+		return isFinished ? new ResponseEntity<String>("La transformacion se ha ejecutado con exito", HttpStatus.OK)
+		: new ResponseEntity<String>("No se ha terminado la transformacion", HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
 	private Boolean executeKettleTransformation(File kettleJob)  {
 		try {
+//			File ruta = new File("src/main/simple-jndi");
+			Const.JNDI_DIRECTORY = "src/main/simple-jndi";
+			log.info("Inicializando KettleEnvironment");
+//			System.getProperty( "KETTLE_JNDI_ROOT" );
+//			System.setProperty("KETTLE_JNDI_ROOT", "simple-jndi");
+			
 			KettleEnvironment.init();
+			log.info("jndi dir: " + Const.JNDI_DIRECTORY);
 			TransMeta metaData = new TransMeta(kettleJob.getPath());
 			Trans trans = new Trans(metaData);
 			trans.setLogLevel(LogLevel.BASIC);
@@ -62,7 +65,7 @@ public class TestController {
 			
 			return trans.isFinished();
 		} catch (KettleException e) {
-			log.error("Error al ejecutar la transformación de Kettle");
+			log.error("Error al ejecutar la transformacion de Kettle", e);
 			return false;
 		}
 		

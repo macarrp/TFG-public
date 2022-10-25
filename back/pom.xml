@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>2.7.4</version>
-		<relativePath/> <!-- lookup parent from repository -->
+		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.marcelo</groupId>
 	<artifactId>tfg</artifactId>
@@ -16,24 +17,12 @@
 	<properties>
 		<java.version>1.8</java.version>
 	</properties>
-	
-	<!-- REPO PENTAHO -->
-	<repositories>
-		<repository>
-			<id>pentaho</id>
-			<url>https://nexus.pentaho.org/content/groups/omni/</url>
-		</repository>
-	</repositories>
-	
+
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
 		</dependency>
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.springframework.boot</groupId> -->
-<!-- 			<artifactId>spring-boot-starter-quartz</artifactId> -->
-<!-- 		</dependency> -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
@@ -59,47 +48,130 @@
 			<artifactId>spring-restdocs-mockmvc</artifactId>
 			<scope>test</scope>
 		</dependency>
-		
+
 		<!-- SWAGGER -->
 		<dependency>
 			<groupId>org.springdoc</groupId>
 			<artifactId>springdoc-openapi-ui</artifactId>
 			<version>1.6.11</version>
 		</dependency>
+
+		<!-- DEPENDENCIAS KETTLE -->
+		<dependency>
+		    <groupId>commons-io</groupId>
+		    <artifactId>commons-io</artifactId>
+		    <version>2.2</version>
+		    <scope>system</scope>
+			<systemPath>${project.basedir}/lib/kettle/commons-io-2.2.jar</systemPath>
+		</dependency>
 		
-		<!-- DEPENDENCIAS KETTLE-->
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+			<version>2.6</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/lib/kettle/commons-lang-2.6.jar</systemPath>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-vfs2</artifactId>
+			<version>2.7.0</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/lib/kettle/commons-vfs2-2.7.0.jar</systemPath>
+		</dependency>
+
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>17.0</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/lib/kettle/guava-17.0.jar</systemPath>
+		</dependency>
+
 		<dependency>
 			<groupId>pentaho-kettle</groupId>
 			<artifactId>kettle-core</artifactId>
 			<version>9.3.0.0-428</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/lib/kettle/kettle-core-9.3.0.0-428.jar</systemPath>
 		</dependency>
-		<dependency>
-			<groupId>pentaho-kettle</groupId>
-			<artifactId>kettle-engine</artifactId>
-			<version>9.3.0.0-428</version>
-		</dependency>
-		<dependency>
-			<groupId>pentaho-kettle</groupId>
-			<artifactId>kettle-ui-swt</artifactId>
-			<version>9.3.0.0-428</version>
-			<scope>provided</scope>
-		</dependency>
+
 		<dependency>
 			<groupId>pentaho-kettle</groupId>
 			<artifactId>kettle-dbdialog</artifactId>
 			<version>9.3.0.0-428</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/lib/kettle/kettle-dbdialog-9.3.0.0-428.jar</systemPath>
 		</dependency>
+
 		<dependency>
-			<groupId>org.pentaho.reporting.engine</groupId>
-			<artifactId>classic-extensions-kettle</artifactId>
+			<groupId>pentaho-kettle</groupId>
+			<artifactId>kettle-engine</artifactId>
 			<version>9.3.0.0-428</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/lib/kettle/kettle-engine-9.3.0.0-428.jar</systemPath>
 		</dependency>
+
 		<dependency>
-		    <groupId>pentaho-kettle</groupId>
-		    <artifactId>kettle-xml-plugin</artifactId>
-		    <version>7.1.0.19-174</version>
+			<groupId>pentaho-kettle</groupId>
+			<artifactId>kettle-ui-swt</artifactId>
+			<version>9.3.0.0-428</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/lib/kettle/kettle-ui-swt-9.3.0.0-428.jar</systemPath>
+		</dependency>
+
+		<dependency>
+			<groupId>pentaho</groupId>
+			<artifactId>metastore</artifactId>
+			<version>9.3.0.0-428</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/lib/kettle/metastore-9.3.0.0-428.jar</systemPath>
+		</dependency>
+
+		<dependency>
+			<groupId>pentaho</groupId>
+			<artifactId>simple-jndi</artifactId>
+			<version>1.0.10</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/lib/kettle/simple-jndi-1.0.10.jar</systemPath>
+		</dependency>
+
+		<dependency>
+			<groupId>org.pentaho</groupId>
+			<artifactId>pentaho-encryption-support</artifactId>
+			<version>9.3.0.0-428</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/lib/kettle/pentaho-encryption-support-9.3.0.0-428.jar</systemPath>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi</artifactId>
+			<version>4.1.1</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/lib/kettle/poi-4.1.1.jar</systemPath>
 		</dependency>
 		
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-ooxml</artifactId>
+			<version>4.1.1</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/lib/kettle/poi-ooxml-4.1.1.jar</systemPath>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-ooxml-schemas</artifactId>
+			<version>4.1.1</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/lib/kettle/poi-ooxml-schemas-4.1.1.jar</systemPath>
+		</dependency>
+
+		<!-- .............. FIN DEPENDENCIAS KETTLE ................... -->
+		<!-- ................................. -->
+
 	</dependencies>
 
 	<build>

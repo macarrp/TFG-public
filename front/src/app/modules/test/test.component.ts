@@ -34,7 +34,7 @@ export class TestComponent implements OnInit {
 
     this.testService.uploadFile(this.file)
       .then((response: string) => {
-        console.log('response', response);
+        console.log('response met', response);
         this.successMessage = response;
       })
       .catch((err) => {

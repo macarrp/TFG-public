@@ -18,7 +18,11 @@ export class TestService {
     formData.append("file", file);
 
     return new Promise(() => {
-      this.http.post(`${this.backendUrl}test/kettle`, formData).toPromise();
+      this.http.post(`${this.backendUrl}test/kettle`, formData).subscribe((response) => {
+        console.log('resp serv', response);
+        JSON.stringify(response);
+        console.log('resp serv', response);
+      });
     })
   }
 }
