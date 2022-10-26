@@ -41,7 +41,7 @@ public class Principal {
 		Trans trans = new Trans(metaData); 
 		String logChannelId = trans.getLogChannelId();
 		trans.setLogLevel(LogLevel.BASIC);
-		trans.execute(null); // <-- Arguments, variables de la transformacion?
+		trans.execute(null); //
 		trans.waitUntilFinished();
 		
 		int erroresJob = trans.getErrors();

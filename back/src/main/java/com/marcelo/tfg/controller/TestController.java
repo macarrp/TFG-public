@@ -1,10 +1,12 @@
 package com.marcelo.tfg.controller;
 
 import java.io.File;
+import java.util.List;
 
-import org.pentaho.di.core.Const;
 import org.pentaho.di.core.KettleEnvironment;
 import org.pentaho.di.core.exception.KettleException;
+import org.pentaho.di.core.logging.KettleLogStore;
+import org.pentaho.di.core.logging.KettleLoggingEvent;
 import org.pentaho.di.core.logging.LogLevel;
 import org.pentaho.di.trans.Trans;
 import org.pentaho.di.trans.TransMeta;
@@ -32,43 +34,59 @@ public class TestController {
 //	@Operation(summary = "Test kettle")
 	@PostMapping("/kettle")
 //	@Consumes(MediaType.MULTIPART_FORM_DATA)
-	public ResponseEntity<String> testKettle(@RequestParam MultipartFile file) {		
+	public ResponseEntity<String> testKettle(@RequestParam MultipartFile file) {
 		File temp = FileUploadUtils.convertMultipartFileToFile(kettleFileDirectory, file);
 
 		if (temp == null)
-			return new ResponseEntity<String>("No se ha encontrado el archivo", HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<>("No se ha encontrado el archivo", HttpStatus.BAD_REQUEST);
 
-		Boolean isFinished = executeKettleTransformation(temp); // Revisar 
-		
-		return isFinished ? new ResponseEntity<String>("La transformacion se ha ejecutado con exito", HttpStatus.OK)
-		: new ResponseEntity<String>("No se ha terminado la transformacion", HttpStatus.INTERNAL_SERVER_ERROR);
+		String logKettle = executeKettleTransformation(temp); // Revisar
+
+		return new ResponseEntity<>(logKettle, HttpStatus.OK);
 	}
 
-	private Boolean executeKettleTransformation(File kettleJob)  {
+	private String executeKettleTransformation(File kettleJob)  {
 		try {
-//			File ruta = new File("src/main/simple-jndi");
-			Const.JNDI_DIRECTORY = "src/main/simple-jndi";
 			log.info("Inicializando KettleEnvironment");
-//			System.getProperty( "KETTLE_JNDI_ROOT" );
-//			System.setProperty("KETTLE_JNDI_ROOT", "simple-jndi");
-			
-			KettleEnvironment.init();
-			log.info("jndi dir: " + Const.JNDI_DIRECTORY);
+
+			// INFO: Tiene que ser false! Si no, el despliegue falla
+			KettleEnvironment.init(false);
+
+			log.info("Inicializado KettleEnvironment: " + KettleEnvironment.isInitialized());
 			TransMeta metaData = new TransMeta(kettleJob.getPath());
 			Trans trans = new Trans(metaData);
 			trans.setLogLevel(LogLevel.BASIC);
-			trans.execute(null); // <-- Arguments, variables de la transformacion?
-			trans.waitUntilFinished();
-			if (trans.getErrors() > 0) {
-				log.error("Error ejecutando la transformacion");
-			}
 			
-			return trans.isFinished();
+			String logChannelId = trans.getLogChannelId();
+			
+			trans.execute(null);
+			trans.waitUntilFinished();
+			int errores = trans.getErrors();
+			
+			log.info("Transformacion ejecutada, recogiendo logs...");
+			List<KettleLoggingEvent> kle = KettleLogStore.getLogBufferFromTo(logChannelId, true, 0, KettleLogStore.getLastBufferLineNr());
+		    String logKettle = kettleLogToString(kle);
+		    
+		    log.info("Logs recogidos, limpiando...");
+		    KettleLogStore.discardLines(logChannelId, true);
+		    
+		    log.info("PDIExecutor : fine job, errores: ",errores);
+		    KettleEnvironment.shutdown();
+
+			return logKettle;
 		} catch (KettleException e) {
 			log.error("Error al ejecutar la transformacion de Kettle", e);
-			return false;
+			return "Error al ejecutar la transformacion de Kettle";
+		}
+	}
+	
+	private String kettleLogToString(List<KettleLoggingEvent> kle) {
+		String logResult = "";
+		for(KettleLoggingEvent logEvent : kle) {
+			logResult += logEvent.getMessage() + " \n";
 		}
 		
+		return logResult;
 	}
 
 }
