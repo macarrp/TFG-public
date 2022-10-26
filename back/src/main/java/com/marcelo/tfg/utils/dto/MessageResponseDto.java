@@ -1,4 +1,4 @@
-package es.aragon.core.common.beans;
+package com.marcelo.tfg.utils.dto;
 
 import lombok.Data;
 

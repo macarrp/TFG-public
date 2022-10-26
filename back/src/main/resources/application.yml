@@ -1,20 +1,29 @@
+server:
+#  show-version: true
+  servlet:
+    context-path: /tfg/api
+  port: 8080
+
 spring:
-  # DS de desarrollo
   datasource:
-    driverClassName: oracle.jdbc.OracleDriver
-    url: jdbc:oracle:thin:@localhost:1521:orcl
-    username: MARCELO #work
-#    url: jdbc:oracle:thin:@localhost:1521:TFG 
-#    username: MARCE_PC #home
-    password: 123456
+      driverClassName: oracle.jdbc.OracleDriver
+      url: jdbc:oracle:thin:@localhost:1521:TFG 
+      username: MARCE_PC #home
+      password: 123456
+
+#      driverClassName: oracle.jdbc.OracleDriver
+#      url: jdbc:oracle:thin:@localhost:1521:orcl 
+#      username: MARCELO #home
+#      password: 123456
+
 #    
-  jpa:
-    open-in-view: false
-    database-platform: org.hibernate.dialect.Oracle12cDialect
-    show-sql : false 
-    generate-ddl: false
-    hibernate:
-      ddl-auto: none
+#  jpa:
+#    open-in-view: false
+#    database-platform: org.hibernate.dialect.Oracle12cDialect
+#    show-sql : false 
+#    generate-ddl: false
+#    hibernate:
+#      ddl-auto: none
       
   messages:
     encoding: ISO-8859-1
@@ -24,24 +33,4 @@ spring:
     multipart:
       # Tamano maximo de archivo subido a 20MB
       max-file-size: 20971520
-      max-request-size: 23068680
-    
-server:
-#  show-version: true
-  servlet:
-    context-path: /tfg/api
-  port: 8080
-
----
-spring:
-    # DS PRE - PRO
-  sql:
-    init:
-      platform: oracle
-  datasource:
-#    jndi-name: sigpeac.sigpeacOracleDatasource
-    driverClassName: 
-    urlconnection: 
-    u_connection: 
-    p_connection:
- 
+      max-request-size: 23068680 

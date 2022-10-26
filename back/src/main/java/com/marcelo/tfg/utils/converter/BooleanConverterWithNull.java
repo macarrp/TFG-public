@@ -1,4 +1,4 @@
-package es.aragon.espresbk.util.converter;
+package com.marcelo.tfg.utils.converter;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;

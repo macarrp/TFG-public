@@ -132,14 +132,6 @@
 		</dependency>
 
 		<dependency>
-			<groupId>pentaho</groupId>
-			<artifactId>simple-jndi</artifactId>
-			<version>1.0.10</version>
-			<scope>system</scope>
-			<systemPath>${project.basedir}/lib/kettle/simple-jndi-1.0.10.jar</systemPath>
-		</dependency>
-
-		<dependency>
 			<groupId>org.pentaho</groupId>
 			<artifactId>pentaho-encryption-support</artifactId>
 			<version>9.3.0.0-428</version>
@@ -169,6 +161,14 @@
 			<version>4.1.1</version>
 			<scope>system</scope>
 			<systemPath>${project.basedir}/lib/kettle/poi-ooxml-schemas-4.1.1.jar</systemPath>
+		</dependency>
+		
+		<dependency>
+			<groupId>pentaho</groupId>
+			<artifactId>simple-jndi</artifactId>
+			<version>1.0.10</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/lib/kettle/simple-jndi-1.0.10.jar</systemPath>
 		</dependency>
 
 		<!-- .............. FIN DEPENDENCIAS KETTLE ................... -->
