@@ -7,11 +7,13 @@ import { TestComponent } from './modules/test/test.component';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { MatIconModule } from '@angular/material/icon';
 import { HttpClientModule } from '@angular/common/http';
+import { KettleComponent } from './modules/kettle/kettle.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    TestComponent
+    TestComponent,
+    KettleComponent
   ],
   imports: [
     BrowserModule,
