@@ -1,22 +1,24 @@
 <section>
     <div class="container">
         <div>
-            <div *ngIf="successMessage" class="alert alert-success">
+            <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show">
                 <strong>¡Éxito! </strong> {{ successMessage }}
+                <button type="button" (click)="cleanLogs()" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
 
-            <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
+            <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
                 <strong>ERROR:</strong> {{ errorMessage }}
+                <button type="button" (click)="cleanLogs()" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
 
-            <div class="mb-4" *ngIf="successMessage || errorMessage">
-                <button class="btn btn-primary" id="logKettle" (click)="crearLogKettle()">Descargar logs</button>
+            <div class="mb-4 alert-dismissible fade show" *ngIf="successMessage || errorMessage && logEjecucionKettle">
+                <button class="btn btn-primary" id="logKettle" (click)="crearLogsKettle()">Descargar logs</button>
             </div>
         </div>
 
         <div>
-            <h5>Inserte aqui la transformación de Kettle</h5>
-            <input type="file" class="form-control tam-file-input" (change)="onFileSelected($event)">
+            <h5>Seleccione la transformación de Kettle</h5>
+            <input type="file" class="form-control tam-file-input" id="kettleFile" (change)="onFileSelected($event)">
         </div>
 
         <div class="mt-3 mb-3">
@@ -27,7 +29,7 @@
                 <option [ngValue]="true">Si</option>
             </select>
         </div>
-        <div class="mb-3" *ngIf="llevaAdjuntos">
+        <!-- <div class="mb-3" *ngIf="llevaAdjuntos">
             <label for="origen_datos">Origen de datos *</label>
             <select [(ngModel)]="origenDatosSelected" class="form-select tam-select" id="origen_datos"
                 aria-label="Origen de datos">
@@ -36,7 +38,7 @@
                     {{ origen }}
                 </option>
             </select>
-        </div>
+        </div> -->
 
         <div class="mb-3" *ngIf="llevaAdjuntos">
             <label for="adjuntos">Adjuntos *</label>

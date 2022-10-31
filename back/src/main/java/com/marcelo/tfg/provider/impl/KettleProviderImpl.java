@@ -27,12 +27,18 @@ public class KettleProviderImpl implements KettleProvider {
 
 	@Override
 	public KettleDto executeKettleTransformation(MultipartFile kettleFile) {
-		File tempKettle = FileUtils.convertMultipartFileToTmpFile(kettleFile);
-
+		Boolean isKettleFile = checkExtensionKettle(kettleFile);
+		
 		KettleDto ktr = new KettleDto();
-
+		if(!isKettleFile) {
+			ktr.setErrores(1);
+			ktr.setMensaje("El fichero no tiene la extensión apropiada");
+			return ktr;
+		}
+		
+		File tempKettle = FileUtils.convertMultipartFileToTmpFile(kettleFile);
 		if (tempKettle == null) {
-			ktr.setErrores(-1);
+			ktr.setErrores(1);
 			ktr.setMensaje("Error al convertir el fichero");
 			return ktr;
 		}
@@ -70,27 +76,32 @@ public class KettleProviderImpl implements KettleProvider {
 			boolean eliminado = FileUtils.deleteFileIfExists(tempKettle);
 			log.info("Fichero eliminado: " + eliminado);
 		}
-
+		
 		return ktr;
 	}
 
 	@Override
 	public KettleDto executeKettleTransformationWithAttachments(MultipartFile kettleFile, List<MultipartFile> files) {
 		log.info("Ejecutando kettle con adjuntos");
-
+		Boolean isKettleFile = checkExtensionKettle(kettleFile);
+		
+		KettleDto ktr = new KettleDto();
+		if(!isKettleFile) {
+			ktr.setErrores(1);
+			ktr.setMensaje("El fichero no tiene la extensión apropiada");
+			return ktr;
+		}
+		
 		File tempKettle = FileUtils.convertMultipartFileToTmpFile(kettleFile);
+		if (tempKettle == null) {
+			ktr.setErrores(1);
+			ktr.setMensaje("Error al convertir el fichero");
+			return ktr;
+		}
 
 		List<File> tempKettleFiles = new ArrayList<>();
 		for (MultipartFile file : files) {
 			tempKettleFiles.add(FileUtils.convertMultipartFileToTmpFile(file));
-		}
-
-		KettleDto ktr = new KettleDto();
-
-		if (tempKettle == null) {
-			ktr.setErrores(-1);
-			ktr.setMensaje("Error al convertir el fichero");
-			return ktr;
 		}
 
 		try {
@@ -196,6 +207,11 @@ public class KettleProviderImpl implements KettleProvider {
 		}
 
 		return kjb;
+	}
+	
+	private Boolean checkExtensionKettle(MultipartFile kettleFile) {
+		String extension = kettleFile.getOriginalFilename().split("\\.")[1];
+		return extension.equals("ktr");
 	}
 
 	private void KettleInit() throws KettleException {

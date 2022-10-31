@@ -17,4 +17,19 @@ public class TfgApplication extends SpringBootServletInitializer{
         return builder.sources(TfgApplication.class);
     }
 
+	/**
+	 * Sets the initial configuration.
+	 *
+	 * @param startupConfig the startup config
+	 *
+	 * @return the startup config
+	 */
+//	@Override
+//	public StartupConfig setInitialConfiguration(StartupConfig startupConfig) {
+//		startupConfig.setProjectCode(Constants.PROJECT_CODE);
+//		startupConfig.setVersionApi(Constants.VERSION_API);
+//		startupConfig.setEmbedDeployEnvironment(Constants.EMBEB_DEPLOY_ENVIROMENT);
+//		startupConfig.setEnvironmentVariableName(Constants.ENVIROMENT_VARIABLE_NAME);
+//		return startupConfig;
+//	}
 }

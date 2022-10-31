@@ -31,8 +31,6 @@ export class KettleService {
       formData.append("files", files.item(i))
     }
 
-    console.log('formData', formData)
-
     return this.http.post<ObjectResponse<KettleResponse>>(`${this.backendUrl}kettle/transformation-with-attachments`, formData);
   }
 

@@ -42,6 +42,8 @@ export class KettleComponent implements OnInit {
       return;
     }
 
+    this.cleanLogs();
+    
     if(!this.llevaAdjuntos) {
       this.uploadKettleTransformation();
     } 
@@ -53,8 +55,7 @@ export class KettleComponent implements OnInit {
   uploadKettleTransformation() {
     this.kettleService.uploadKettleTransformation(this.file).subscribe((result) => {
       if(result.success) {
-        console.log('response met', result);
-        
+
         if(result.message.errores == 0) {
           this.successMessage = result.message.mensaje;
           this.logEjecucionKettle = result.message.log;
@@ -65,7 +66,6 @@ export class KettleComponent implements OnInit {
 
       }
       else {
-        console.log('err', result);
         this.errorMessage = result.error;
       }
       // Éxito o no, deberíamos recibir logs (de momento solo éxito)
@@ -77,7 +77,6 @@ export class KettleComponent implements OnInit {
   uploadKettleTransformationWithAttachments() {
     this.kettleService.uploadKettleTransformationWithAttachments(this.file, this.fileList).subscribe((result) => {
       if(result.success) {
-        console.log('response met', result);
 
         if(result.message.errores == 0) {
           this.successMessage = result.message.mensaje;
@@ -88,7 +87,6 @@ export class KettleComponent implements OnInit {
         }
       }
       else {
-        console.log('err', result);
         this.errorMessage = result.error;
       }
     })
@@ -107,6 +105,11 @@ export class KettleComponent implements OnInit {
     document.body.appendChild(link);
     link.click();
     link.remove();
+  }
+
+  cleanLogs() {
+    this.errorMessage = '';
+    this.successMessage = '';
   }
 
 }

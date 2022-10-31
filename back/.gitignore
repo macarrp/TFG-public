@@ -31,3 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Kettle Transformations ###
+Kettle_transformations

@@ -27,9 +27,11 @@ public class FileUtils {
 		File temp = null;
 		try {
 			log.info("Creando fichero temporal");
-
+			String nombreCompletoArchivo = fileToConvert.getOriginalFilename();
+			String nombre = nombreCompletoArchivo.split("\\.")[0];
+			
 			// Parameter 3 - Default tmp directory of the system
-			temp = File.createTempFile("kettle_", ".ktr", null);
+			temp = File.createTempFile("kettle_" + nombre, ".ktr", null);
 
 			log.info("Fichero temporal creado con exito, volcando bytes...");
 
