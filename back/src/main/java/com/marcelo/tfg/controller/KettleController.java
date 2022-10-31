@@ -1,5 +1,7 @@
 package com.marcelo.tfg.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -18,17 +20,28 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @Slf4j
-@RequestMapping("/test")
+@RequestMapping("/kettle")
 public class KettleController {
 
 	@Autowired
 	KettleProvider kettleProvider;
 
-	@PostMapping(value = "/kettle-transformation", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public MessageResponseDto<KettleDto> testKettleTransformation(@RequestParam MultipartFile file) {
-		KettleDto ktr = null;
+	@PostMapping(value = "/transformation", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	public MessageResponseDto<KettleDto> runKettleTransformation(@RequestParam MultipartFile kettle) {
 		try {
-			ktr = kettleProvider.executeKettleTransformation(file);
+			KettleDto ktr = kettleProvider.executeKettleTransformation(kettle);
+			return MessageResponseDto.success(ktr);
+		} catch (Exception e) {
+			log.error("Error al ejecutar la transformacion de Kettle", e);
+			return MessageResponseDto.fail("Error al ejecutar la transformacion de Kettle");
+		}
+	}
+	
+	@PostMapping(value = "/transformation-with-attachments", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	public MessageResponseDto<KettleDto> runKettleTransformationWithAttachments(@RequestParam MultipartFile kettle, 
+			@RequestParam List<MultipartFile> files) {
+		try {
+			KettleDto ktr = kettleProvider.executeKettleTransformationWithAttachments(kettle, files);
 			return MessageResponseDto.success(ktr);
 		} catch (Exception e) {
 			log.error("Error al ejecutar la transformacion de Kettle", e);
@@ -37,7 +50,7 @@ public class KettleController {
 	}
 	
 	@PostMapping(value = "/kettle-job", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public MessageResponseDto<KettleDto> testKettleJob(@RequestParam MultipartFile file) {
+	public MessageResponseDto<KettleDto> runKettleJob(@RequestParam MultipartFile file) {
 		KettleDto ktr = null;
 		try {
 			ktr = kettleProvider.executeKettleJob(file);

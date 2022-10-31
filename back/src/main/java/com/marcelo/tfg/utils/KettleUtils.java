@@ -25,8 +25,6 @@ public class KettleUtils {
 		for(KettleLoggingEvent logEvent : kle) {
 			logResult += logEvent.getMessage() + " \n";
 		}
-		
-		log.info("Limpiando buffer...");
 	    KettleLogStore.discardLines(logChannelId, true);
 		
 		return logResult;

@@ -19,7 +19,12 @@
 	</properties>
 
 	<dependencies>
-	
+
+		<!--<dependency>
+			<groupId>es.aragon.core</groupId>
+			<artifactId>amm-core-module-authentication-db</artifactId>
+		</dependency>-->
+
 		<!-- TOMCAT EXTERNO -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
