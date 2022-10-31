@@ -16,12 +16,12 @@
 
         <div>
             <h5>Inserte aqui la transformación de Kettle</h5>
-            <input type="file" class="form-control" (change)="onFileSelected($event)">
+            <input type="file" class="form-control tam-file-input" (change)="onFileSelected($event)">
         </div>
 
         <div class="mt-3 mb-3">
             <label for="kettle_adjuntos">¿Lleva adjuntos?</label>
-            <select [(ngModel)]="llevaAdjuntos" class="form-select" id="kettle_adjuntos"
+            <select [(ngModel)]="llevaAdjuntos" class="form-select tam-select" id="kettle_adjuntos"
                 aria-label="Adjuntos de Kettle">
                 <option [ngValue]="false">No</option>
                 <option [ngValue]="true">Si</option>
@@ -29,7 +29,7 @@
         </div>
         <div class="mb-3" *ngIf="llevaAdjuntos">
             <label for="origen_datos">Origen de datos *</label>
-            <select [(ngModel)]="origenDatosSelected" class="form-select" id="origen_datos"
+            <select [(ngModel)]="origenDatosSelected" class="form-select tam-select" id="origen_datos"
                 aria-label="Origen de datos">
                 <option [ngValue]="null"></option>
                 <option *ngFor="let origen of origenDatos" [value]="origen">
@@ -40,7 +40,7 @@
 
         <div class="mb-3" *ngIf="llevaAdjuntos">
             <label for="adjuntos">Adjuntos *</label>
-            <input type="file" (change)="onMultipleFilesSelected($event)" class="form-control" id="adjuntos"
+            <input type="file" (change)="onMultipleFilesSelected($event)" class="form-control tam-file-input" id="adjuntos"
                 name="adjuntos" multiple>
         </div>
 
