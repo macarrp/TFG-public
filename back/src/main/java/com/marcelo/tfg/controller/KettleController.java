@@ -52,11 +52,11 @@ public class KettleController {
 		}
 	}
 	
-	@PostMapping(value = "/kettle-job", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public MessageResponseDto<KettleDto> runKettleJob(@RequestParam MultipartFile file) {
+	@PostMapping(value = "/job", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	public MessageResponseDto<KettleDto> runKettleJob(@RequestParam MultipartFile kettle) {
 		KettleDto ktr = null;
 		try {
-			ktr = kettleProvider.executeKettleJob(file);
+			ktr = kettleProvider.executeKettleJob(kettle);
 			return MessageResponseDto.success(ktr);
 		} catch (Exception e) {
 			log.error("Error al ejecutar el trabajo de Kettle", e);
