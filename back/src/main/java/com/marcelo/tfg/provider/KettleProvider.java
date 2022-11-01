@@ -4,11 +4,12 @@ import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import com.marcelo.tfg.LogLevelKettle;
 import com.marcelo.tfg.dto.KettleDto;
 
 public interface KettleProvider {
 
-	KettleDto executeKettleTransformation(MultipartFile kettleFile);
+	KettleDto executeKettleTransformation(MultipartFile kettleFile, LogLevelKettle logLevel);
 	
 	KettleDto executeKettleTransformationWithAttachments(MultipartFile kettleFile, List<MultipartFile> files);
 

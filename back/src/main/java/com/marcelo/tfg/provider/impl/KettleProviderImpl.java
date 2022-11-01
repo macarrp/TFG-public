@@ -14,6 +14,7 @@ import org.pentaho.di.trans.TransMeta;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.marcelo.tfg.LogLevelKettle;
 import com.marcelo.tfg.dto.KettleDto;
 import com.marcelo.tfg.provider.KettleProvider;
 import com.marcelo.tfg.utils.FileUtils;
@@ -26,7 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 public class KettleProviderImpl implements KettleProvider {
 
 	@Override
-	public KettleDto executeKettleTransformation(MultipartFile kettleFile) {
+	public KettleDto executeKettleTransformation(MultipartFile kettleFile, LogLevelKettle logLevelKettle) {
 		Boolean isKettleFile = checkExtensionKettle(kettleFile);
 		
 		KettleDto ktr = new KettleDto();
@@ -42,16 +43,27 @@ public class KettleProviderImpl implements KettleProvider {
 			ktr.setMensaje("Error al convertir el fichero");
 			return ktr;
 		}
-
+		
+		
+		String logChannelId = null;
 		try {
 			KettleInit();
 			log.info("KettleEnvironment inicializado : " + KettleEnvironment.isInitialized());
 
 			TransMeta metaData = new TransMeta(tempKettle.getPath());
 			Trans trans = new Trans(metaData);
-			trans.setLogLevel(LogLevel.BASIC);
+			
+			if(logLevelKettle != null) {
+				
+				log.info("LogLevel detectando: " + logLevelKettle);
+				trans.setLogLevel(logLevelKettle.getLogLevelKettle());
+			} 
+			else {
+				log.info("LogLevel no detectado, asignando a BASIC");
+				trans.setLogLevel(LogLevel.BASIC);
+			}
 
-			String logChannelId = trans.getLogChannelId();
+			logChannelId = trans.getLogChannelId();
 
 			log.info("Ejecutando transformacion...");
 			trans.execute(null);
@@ -70,6 +82,8 @@ public class KettleProviderImpl implements KettleProvider {
 			log.info("Logs recogidos, finalizando procesos...");
 			KettleEnvironment.shutdown();
 		} catch (KettleException e) {
+			ktr.setLog(KettleUtils.getKettleLogs(logChannelId));
+			ktr.setErrores(ktr.getErrores() + 1);
 			ktr.setMensaje("Error al ejecutar la transformación de Kettle");
 			log.error(ktr.getMensaje(), e);
 		} finally {
@@ -97,12 +111,16 @@ public class KettleProviderImpl implements KettleProvider {
 			ktr.setErrores(1);
 			ktr.setMensaje("Error al convertir el fichero");
 			return ktr;
-		}
+		}		
 
 		List<File> tempKettleFiles = new ArrayList<>();
 		for (MultipartFile file : files) {
 			tempKettleFiles.add(FileUtils.convertMultipartFileToTmpFile(file));
 		}
+		
+		// Necesito conocer la ruta y el nombre de los ficheros y pasarselos a la funcion
+		tempKettle = FileUtils.modifyXmlTransformationPath(tempKettle);
+		log.info("tam " + tempKettle.length() + " bytes");
 
 		try {
 			KettleInit();
@@ -131,6 +149,7 @@ public class KettleProviderImpl implements KettleProvider {
 			log.info("Logs recogidos, finalizando procesos...");
 			KettleEnvironment.shutdown();
 		} catch (KettleException e) {
+			ktr.setErrores(ktr.getErrores() + 1);
 			ktr.setMensaje("Error al ejecutar la transformación de Kettle");
 			log.error(ktr.getMensaje(), e);
 		} finally {
@@ -199,6 +218,7 @@ public class KettleProviderImpl implements KettleProvider {
 			log.info("Logs recogidos, finalizando procesos...");
 			KettleEnvironment.shutdown();
 		} catch (KettleException e) {
+			kjb.setErrores(kjb.getErrores() + 1);
 			kjb.setMensaje("Error al ejecutar el trabajo de Kettle");
 			log.error(kjb.getMensaje(), e);
 		} finally {
@@ -209,11 +229,22 @@ public class KettleProviderImpl implements KettleProvider {
 		return kjb;
 	}
 	
+	/**
+	 * Verifica que el argumento pasado como parámetro tiene extensión ktr o kbj
+	 * 
+	 * @param kettleFile
+	 * @return true si es '.ktr' o 'kjb'. Falso en caso contrario
+	 */
 	private Boolean checkExtensionKettle(MultipartFile kettleFile) {
 		String extension = kettleFile.getOriginalFilename().split("\\.")[1];
-		return extension.equals("ktr");
+		return extension.equals("ktr") || extension.equals("kjb");
 	}
 
+	/**
+	 * Wrapper para inicializar el entorno de Kettle
+	 * 
+	 * @throws KettleException
+	 */
 	private void KettleInit() throws KettleException {
 		// WARNING: Tiene que ser false! Si no, el despliegue falla
 		if (!KettleEnvironment.isInitialized()) {

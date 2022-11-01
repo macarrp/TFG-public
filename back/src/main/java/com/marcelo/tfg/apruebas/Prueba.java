@@ -1,114 +1,99 @@
 package com.marcelo.tfg.apruebas;
 
-import org.w3c.dom.*;
-import org.xml.sax.SAXException;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.stream.StreamSource;
-import java.io.*;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class Prueba {
 
-//	For staff id 1001
-//
-//	Remove the XML element name.
-//	For the XML element role, update the value to "founder".
-//	For staff id 1002
-//
-//	Update the XML attribute to 2222.
-//	Add a new XML element salary, contains attribute and value.
-//	Add a new XML comment.
-//	Rename an XML element, from name to n (remove and add).
-
-	public static void main(String[] args) {
-		File ktr = new File("Kettle_transformations/EntradaTxtSalidaExcel.ktr");
-		log.info("tam file: " + ktr.length());
+	public static void main(String[] args) throws IOException {
+		modifyXmlTransformationPath(new File("Kettle_transformations/EntradaTxtSalidaExcel.ktr"));
+	}
+	
+	public static File modifyXmlTransformationPath(File kettleFile) {
+		String msgError = "El fichero no se ha modificado";
+		log.info("tam file: " + kettleFile.length());
 
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-
-		try (InputStream is = new FileInputStream(ktr)) {
+		
+		try (InputStream is = new FileInputStream(kettleFile)) {
 			DocumentBuilder db = dbf.newDocumentBuilder();
 			Document doc = db.parse(is);
 
-			NodeList listOfFiles = doc.getElementsByTagName("file");
+			NodeList listOfNodeFiles = doc.getElementsByTagName("file");
 
-			for (int i = 0; i < listOfFiles.getLength(); i++) {
-				Node file = listOfFiles.item(i);
-				if (file.getNodeType() == Node.ELEMENT_NODE) {
-					NodeList childNodes = file.getChildNodes();
-					for(int j = 0; j < childNodes.getLength(); j++) {
-						Node item = childNodes.item(j);
-						if (item.getNodeType() == Node.ELEMENT_NODE) {							
-							if("name".equalsIgnoreCase(item.getNodeName())) {
-								log.info("Ruta encontrada: " + item.getTextContent());
+			for (int i = 0; i < listOfNodeFiles.getLength(); i++) {
+				Node nodeFile = listOfNodeFiles.item(i);
+				if (nodeFile.getNodeType() == Node.ELEMENT_NODE) {
+					NodeList files = nodeFile.getChildNodes();
+					for (int j = 0; j < files.getLength(); j++) {
+						Node name = files.item(j);
+						if (name.getNodeType() == Node.ELEMENT_NODE) {
+							if ("name".equalsIgnoreCase(name.getNodeName())) {
+								log.info("Ruta encontrada en el ktr: " + name.getTextContent());
 
 								// Cambiamos la ruta del fichero para que apunte
-								// a la ruta temporal								
-								String[] rutaCompleta = item.getTextContent().split("\\\\");
+								// a la ruta temporal
 								
-								String nombreArchivo = rutaCompleta[rutaCompleta.length-1];
-								item.setTextContent("C:/Test/" + nombreArchivo);
-								
-								log.info("Ruta nueva: " + item.getTextContent());
+								name.setTextContent(kettleFile.getCanonicalPath()); 
+
+								log.info("Ruta nueva del ktr: " + name.getTextContent());
 							}
 						}
 					}
-					
 				}
 			}
 
-			// output to console
-			// writeXml(doc, System.out);
+			// write the content into xml file
+			DOMSource source = new DOMSource(doc);
+			FileWriter writer = new FileWriter(new File("output.ktr"));
+			StreamResult result = new StreamResult(writer);
 
-			try (FileOutputStream output = new FileOutputStream("C:\\test\\kettle-modified.ktr")) {
-				try {
-					writeXml(doc, output);
-				} catch (TransformerException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
+			TransformerFactory transformerFactory = TransformerFactory.newInstance();
+			Transformer transformer = transformerFactory.newTransformer();
+			transformer.transform(source, result);
 
-		} catch (ParserConfigurationException | SAXException | IOException e) {
-			e.printStackTrace();
+			return new File("output.ktr");
+		} catch (FileNotFoundException e) {
+			log.error("Fichero no encontrado. " + msgError, e);
+			return kettleFile;
+		} catch (IOException e) {
+			log.error("Error de InputStream. " + msgError, e);
+			return kettleFile;
+		} catch (ParserConfigurationException e) {
+			log.error("Error al crear DocumentBuilder. " + msgError, e);
+			return kettleFile;
+		} catch (SAXException e) {
+			log.error("Error al crear Document. " + msgError, e);
+			return kettleFile;
+		} catch (TransformerConfigurationException e) {
+			log.error("Error al crear Transformer. " + msgError, e);
+			return kettleFile;
+		} catch (TransformerException e) {
+			log.error("Error al crear el fichero final. " + msgError, e);
+			return kettleFile;
 		}
 	}
-	
-	// write doc to output stream
-    private static void writeXml(Document doc,
-                                 OutputStream output)
-            throws TransformerException, UnsupportedEncodingException {
-
-        TransformerFactory transformerFactory = TransformerFactory.newInstance();
-
-        // The default add many empty new line, not sure why?
-        // https://mkyong.com/java/pretty-print-xml-with-java-dom-and-xslt/
-        // Transformer transformer = transformerFactory.newTransformer();
-
-        // add a xslt to remove the extra newlines
-        Transformer transformer = transformerFactory.newTransformer(
-                new StreamSource(new File("src/main/java/apruebas/xslt-format.xslt")));
-
-        // pretty print
-        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-        transformer.setOutputProperty(OutputKeys.STANDALONE, "no");
-
-        DOMSource source = new DOMSource(doc);
-        StreamResult result = new StreamResult(output);
-
-        transformer.transform(source, result);
-
-    }
 
 }

@@ -16,16 +16,16 @@ spring:
       max-request-size: 23068680 
   
   datasource:
-#      driverClassName: oracle.jdbc.OracleDriver
-#      jndi-name: tfg.tfgOracleDatasource
-#      url: jdbc:oracle:thin:@localhost:1521:TFG 
-#      username: MARCE_PC #home
-#      password: 123456
-
       driverClassName: oracle.jdbc.OracleDriver
-      url: jdbc:oracle:thin:@localhost:1521:orcl 
-      username: MARCELO #work
+#      jndi-name: tfg.tfgOracleDatasource
+      url: jdbc:oracle:thin:@localhost:1521:TFG 
+      username: MARCE_PC #home
       password: 123456
+
+#      driverClassName: oracle.jdbc.OracleDriver
+#      url: jdbc:oracle:thin:@localhost:1521:orcl 
+#      username: MARCELO #work
+#      password: 123456
       
 #      platform: oracle
 #      jndi-name: tfg.tfgOracleDatasource
