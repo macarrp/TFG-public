@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import { LogLevelKettle } from '../models/enums/LogLevelKettle.enum';
 import { KettleResponse } from '../models/KettleResponse.model';
 import { ObjectResponse } from '../models/ObjectResponse.model';
 
@@ -14,18 +15,20 @@ export class KettleService {
 
   constructor(private readonly http: HttpClient) { }
 
-  uploadKettleTransformation(file: File): Observable<ObjectResponse<KettleResponse>> {
+  uploadKettleTransformation(file: File, logLevelKettleSelected: LogLevelKettle): Observable<ObjectResponse<KettleResponse>> {
     const formData = new FormData();
 
     formData.append("kettle", file);
+    formData.append("logLevelKettle", logLevelKettleSelected);
 
     return this.http.post<ObjectResponse<KettleResponse>>(`${this.backendUrl}kettle/transformation`, formData);
   }
 
-  uploadKettleTransformationWithAttachments(file: File, files: FileList): Observable<ObjectResponse<KettleResponse>> {
+  uploadKettleTransformationWithAttachments(file: File, files: FileList, logLevelKettleSelected: LogLevelKettle): Observable<ObjectResponse<KettleResponse>> {
     const formData = new FormData();
 
     formData.append("kettle", file)
+    formData.append("logLevelKettle", logLevelKettleSelected);
 
     for(let i = 0; i < files.length; i++) {
       formData.append("files", files.item(i))
@@ -34,11 +37,11 @@ export class KettleService {
     return this.http.post<ObjectResponse<KettleResponse>>(`${this.backendUrl}kettle/transformation-with-attachments`, formData);
   }
 
-  uploadFile(file: File): Observable<ObjectResponse<KettleResponse>> {
+  uploadKettleJob(file: File): Observable<ObjectResponse<KettleResponse>> {
     const formData = new FormData();
 
     formData.append("kettle", file);
 
-    return this.http.post<ObjectResponse<KettleResponse>>(`${this.backendUrl}kettle/transformation`, formData);
+    return this.http.post<ObjectResponse<KettleResponse>>(`${this.backendUrl}kettle/job`, formData);
   }
 }

@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { LogLevelKettle } from 'src/app/models/enums/LogLevelKettle.enum';
 import { KettleService } from 'src/app/services/kettle.service';
 
 @Component({
@@ -19,6 +20,11 @@ export class KettleComponent implements OnInit {
   errorMessage: string = null;
   successMessage: string = null;
   logEjecucionKettle: string = null;
+
+  // LogLevel
+  keys = Object.keys;
+  logsLevelKettle = LogLevelKettle;
+  logLevelKettleSelected: LogLevelKettle = LogLevelKettle.BASIC;
 
   origenDatos = ['Excel', 'Texto plano', 'BD', 'XML'];
   origenDatosSelected: string;
@@ -43,48 +49,48 @@ export class KettleComponent implements OnInit {
     }
 
     this.cleanLogs();
-    
-    if(!this.llevaAdjuntos) {
+
+    if (!this.llevaAdjuntos) {
       this.uploadKettleTransformation();
-    } 
+    }
     else {
       this.uploadKettleTransformationWithAttachments();
     }
   }
 
   uploadKettleTransformation() {
-    this.kettleService.uploadKettleTransformation(this.file).subscribe((result) => {
-      if(result.success) {
+    this.kettleService.uploadKettleTransformation(this.file, this.logLevelKettleSelected).subscribe((result) => {
+      if (result.success) {
 
-        if(result.message.errores == 0) {
+        if (result.message.errores == 0) {
           this.successMessage = result.message.mensaje;
-          this.logEjecucionKettle = result.message.log;
         }
         else {
           this.errorMessage = result.message.mensaje;
         }
 
+        // Éxito o no, recibimos los logs
+        this.logEjecucionKettle = result.message.log;
+        // this.crearLogKettle(); Si quiero que se descargue automaticamente
       }
       else {
         this.errorMessage = result.error;
       }
-      // Éxito o no, deberíamos recibir logs (de momento solo éxito)
-      // this.logEjecucionKettle = result.message.log;
-      // this.crearLogKettle(); Si quiero que se descargue automaticamente
     })
   }
 
   uploadKettleTransformationWithAttachments() {
-    this.kettleService.uploadKettleTransformationWithAttachments(this.file, this.fileList).subscribe((result) => {
-      if(result.success) {
+    this.kettleService.uploadKettleTransformationWithAttachments(this.file, this.fileList, this.logLevelKettleSelected).subscribe((result) => {
+      if (result.success) {
 
-        if(result.message.errores == 0) {
+        if (result.message.errores == 0) {
           this.successMessage = result.message.mensaje;
-          this.logEjecucionKettle = result.message.log;
         }
         else {
           this.errorMessage = result.message.mensaje;
         }
+
+        this.logEjecucionKettle = result.message.log;
       }
       else {
         this.errorMessage = result.error;
@@ -93,7 +99,7 @@ export class KettleComponent implements OnInit {
   }
 
   crearLogsKettle() {
-    let blob = new Blob([this.logEjecucionKettle], {type: "text/plain;charset=utf-8"});
+    let blob = new Blob([this.logEjecucionKettle], { type: "text/plain;charset=utf-8" });
     let blobUrl = URL.createObjectURL(blob);
 
     let link = document.createElement('a');
@@ -110,6 +116,10 @@ export class KettleComponent implements OnInit {
   cleanLogs() {
     this.errorMessage = '';
     this.successMessage = '';
+  }
+
+  logVar(variable) {
+    console.log('valor: ', variable)
   }
 
 }
