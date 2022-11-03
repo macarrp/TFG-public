@@ -54,7 +54,6 @@ public class KettleProviderImpl implements KettleProvider {
 			Trans trans = new Trans(metaData);
 			
 			if(logLevelKettle != null) {
-				
 				log.info("LogLevel detectando: " + logLevelKettle);
 				trans.setLogLevel(logLevelKettle.getLogLevelKettle());
 			} 
@@ -82,7 +81,9 @@ public class KettleProviderImpl implements KettleProvider {
 			log.info("Logs recogidos, finalizando procesos...");
 			KettleEnvironment.shutdown();
 		} catch (KettleException e) {
-			ktr.setLog(KettleUtils.getKettleLogs(logChannelId));
+			if(logChannelId != null)
+				ktr.setLog(KettleUtils.getKettleLogs(logChannelId));
+			
 			ktr.setErrores(ktr.getErrores() + 1);
 			ktr.setMensaje("Error al ejecutar la transformación de Kettle");
 			log.error(ktr.getMensaje(), e);
@@ -91,6 +92,7 @@ public class KettleProviderImpl implements KettleProvider {
 			log.info("Fichero eliminado: " + eliminado);
 		}
 		
+		log.info("Ejecucion terminada");
 		return ktr;
 	}
 
@@ -118,9 +120,9 @@ public class KettleProviderImpl implements KettleProvider {
 			tempKettleFiles.add(FileUtils.convertMultipartFileToTmpFile(file));
 		}
 		
-		// Necesito conocer la ruta y el nombre de los ficheros y pasarselos a la funcion
 		tempKettle = FileUtils.modifyXmlTransformationPath(tempKettle);
 		log.info("tam " + tempKettle.length() + " bytes");
+		// Necesito conocer la ruta y el nombre de los ficheros y pasarselos a la funcion
 
 		try {
 			KettleInit();
@@ -229,6 +231,8 @@ public class KettleProviderImpl implements KettleProvider {
 		return kjb;
 	}
 	
+	
+	// TODO: Mover a KettleUtils
 	/**
 	 * Verifica que el argumento pasado como parámetro tiene extensión ktr o kbj
 	 * 

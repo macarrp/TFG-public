@@ -1,0 +1,30 @@
+Commons
+commons-codec => Base64
+
+Callable/Settable Future
+guava-17.0
+
+WebService
+httpclient-4.5.9
+httpcore-4.4.11
+wsdl4j
+
+JXL ?
+
+Pentaho Kettle BASE
+kettle-core
+kettle-dbdialog
+kettle-engine
+kettle-ui-swt
+metastore
+pentaho-encryption-support
+
+Tratamiento ficheros Microsoft
+poi
+poi-ooxml
+poi-ooxml-schemas
+---
+xmlbeans
+
+JNDI Pentaho
+simple-jndi ??

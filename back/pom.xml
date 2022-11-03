@@ -71,6 +71,31 @@
 
 		<!-- DEPENDENCIAS KETTLE -->
 		<dependency>
+			<groupId>commons-codec</groupId>
+			<artifactId>commons-codec</artifactId>
+			<version>1.15</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/lib/kettle/commons-codec-1.15.jar</systemPath>
+		</dependency>
+		
+		<dependency>
+		    <groupId>org.apache.commons</groupId>
+		    <artifactId>commons-collections4</artifactId>
+		    <version>4.4</version>
+		    <scope>system</scope>
+			<systemPath>${project.basedir}/lib/kettle/commons-collections4-4.4.jar</systemPath>
+		</dependency>
+
+		<dependency>
+		    <groupId>org.apache.commons</groupId>
+		    <artifactId>commons-compress</artifactId>
+		    <version>1.18</version>
+		    <scope>system</scope>
+			<systemPath>${project.basedir}/lib/kettle/commons-compress-1.20.jar</systemPath>
+		</dependency>
+
+		
+		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
 			<version>2.2</version>
@@ -100,6 +125,22 @@
 			<version>17.0</version>
 			<scope>system</scope>
 			<systemPath>${project.basedir}/lib/kettle/guava-17.0.jar</systemPath>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+			<version>httpclient-4.5.9</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/lib/kettle/httpclient-4.5.9.jar</systemPath>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpcore</artifactId>
+			<version>httpcore-4.4.11</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/lib/kettle/httpcore-4.4.11.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -188,6 +229,22 @@
 			<version>1.0.10</version>
 			<scope>system</scope>
 			<systemPath>${project.basedir}/lib/kettle/simple-jndi-1.0.10.jar</systemPath>
+		</dependency>
+		
+		<dependency>
+		    <groupId>wsdl4j</groupId>
+		    <artifactId>wsdl4j</artifactId>
+		    <version>1.6.2</version>
+		    <scope>system</scope>
+			<systemPath>${project.basedir}/lib/kettle/wsdl4j-1.6.2.jar</systemPath>
+		</dependency>
+
+		<dependency>
+		    <groupId>org.apache.xmlbeans</groupId>
+		    <artifactId>xmlbeans</artifactId>
+		    <version>3.1.0</version>
+		    <scope>system</scope>
+			<systemPath>${project.basedir}/lib/kettle/xmlbeans-3.1.0.jar</systemPath>
 		</dependency>
 
 
