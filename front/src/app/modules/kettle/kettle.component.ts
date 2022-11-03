@@ -36,10 +36,12 @@ export class KettleComponent implements OnInit {
 
   onFileSelected(event) {
     this.file = event.target.files[0];
+    this.cleanLogs();
   }
 
   onMultipleFilesSelected(event) {
     this.fileList = event.target.files;
+    this.cleanLogs();
   }
 
   uploadFile() {
