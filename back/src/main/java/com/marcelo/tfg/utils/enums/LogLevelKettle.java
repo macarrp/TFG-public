@@ -1,6 +1,13 @@
-package com.marcelo.tfg;
+package com.marcelo.tfg.utils.enums;
 
 import org.pentaho.di.core.logging.LogLevel;
+
+/**
+ * Nivel de logs de ejecucion de Kettle
+ * 
+ * @author mcarro
+ *
+ */
 
 public enum LogLevelKettle {
 	NOTHING(LogLevel.NOTHING), 

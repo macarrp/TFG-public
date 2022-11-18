@@ -11,10 +11,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.marcelo.tfg.LogLevelKettle;
 import com.marcelo.tfg.dto.KettleDto;
 import com.marcelo.tfg.provider.KettleProvider;
 import com.marcelo.tfg.utils.dto.MessageResponseDto;
+import com.marcelo.tfg.utils.enums.LogLevelKettle;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -31,7 +31,7 @@ public class KettleController {
 	public MessageResponseDto<KettleDto> runKettleTransformation(@RequestParam MultipartFile kettle,
 			@RequestParam(required = false) LogLevelKettle logLevelKettle) {
 		try {
-			KettleDto ktr = kettleProvider.executeKettleTransformation(kettle, logLevelKettle);
+			KettleDto ktr = kettleProvider.executeTransformation(kettle, logLevelKettle);
 			return MessageResponseDto.success(ktr);
 		} catch (Exception e) {
 			log.error("Error al ejecutar la transformacion de Kettle", e);
@@ -44,7 +44,7 @@ public class KettleController {
 			@RequestParam List<MultipartFile> files,
 			@RequestParam(required = false) LogLevelKettle logLevelKettle) {
 		try {
-			KettleDto ktr = kettleProvider.executeKettleTransformationWithAttachments(kettle, files);
+			KettleDto ktr = kettleProvider.executeTransformationWithAttachments(kettle, files, logLevelKettle);
 			return MessageResponseDto.success(ktr);
 		} catch (Exception e) {
 			log.error("Error al ejecutar la transformacion de Kettle", e);
@@ -56,7 +56,7 @@ public class KettleController {
 	public MessageResponseDto<KettleDto> runKettleJob(@RequestParam MultipartFile kettle) {
 		KettleDto ktr = null;
 		try {
-			ktr = kettleProvider.executeKettleJob(kettle);
+			ktr = kettleProvider.executeJob(kettle);
 			return MessageResponseDto.success(ktr);
 		} catch (Exception e) {
 			log.error("Error al ejecutar el trabajo de Kettle", e);

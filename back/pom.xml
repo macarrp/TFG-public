@@ -12,7 +12,6 @@
 	<version>0.0.1</version>
 	<name>tfg</name>
 	<description>Proyecto de TFG de Marcelo Carro</description>
-	<packaging>war</packaging>
 
 	<properties>
 		<java.version>1.8</java.version>
@@ -110,6 +109,14 @@
 			<scope>system</scope>
 			<systemPath>${project.basedir}/lib/kettle/commons-lang-2.6.jar</systemPath>
 		</dependency>
+		
+		<dependency>
+		    <groupId>org.apache.commons</groupId>
+		    <artifactId>commons-math3</artifactId>
+		    <version>3.6.1</version>
+		    <scope>system</scope>
+			<systemPath>${project.basedir}/lib/kettle/commons-math3-3.6.1.jar</systemPath>
+		</dependency>
 
 		<dependency>
 			<groupId>org.apache.commons</groupId>
@@ -118,6 +125,15 @@
 			<scope>system</scope>
 			<systemPath>${project.basedir}/lib/kettle/commons-vfs2-2.7.0.jar</systemPath>
 		</dependency>
+		
+		<dependency>
+		    <groupId>org.dom4j</groupId>
+		    <artifactId>dom4j</artifactId>
+		    <version>2.1.1</version>
+		    <scope>system</scope>
+			<systemPath>${project.basedir}/lib/kettle/dom4j-2.1.1.jar</systemPath>
+		</dependency>
+
 
 		<dependency>
 			<groupId>com.google.guava</groupId>
@@ -142,6 +158,50 @@
 			<scope>system</scope>
 			<systemPath>${project.basedir}/lib/kettle/httpcore-4.4.11.jar</systemPath>
 		</dependency>
+		
+		<dependency>
+		    <groupId>org.javassist</groupId>
+		    <artifactId>javassist</artifactId>
+		    <version>3.20.0-GA</version>
+		    <scope>system</scope>
+			<systemPath>${project.basedir}/lib/kettle/javassist-3.20.0-GA.jar</systemPath>
+		</dependency>
+		
+		<dependency>
+		    <groupId>jaxen</groupId>
+		    <artifactId>jaxen</artifactId>
+		    <version>1.1.6</version>
+		    <scope>system</scope>
+			<systemPath>${project.basedir}/lib/kettle/jaxen-1.1.6.jar</systemPath>
+		</dependency>
+
+
+		
+		<dependency>
+		    <groupId>com.jayway.jsonpath</groupId>
+		    <artifactId>json-path</artifactId>
+		    <version>1.0.0</version>
+		    <scope>system</scope>
+			<systemPath>${project.basedir}/lib/kettle/jsonpath-1.0.jar</systemPath>
+		</dependency>
+
+		
+		<dependency>
+			<groupId>org.json</groupId>
+    		<artifactId>json</artifactId>
+			<version>9.3.0.0-428</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/lib/kettle/json-9.3.0.0-428.jar</systemPath>
+		</dependency>
+		
+		<dependency>
+		    <groupId>com.googlecode.json-simple</groupId>
+		    <artifactId>json-simple</artifactId>
+		    <version>1.1</version>
+		    <scope>system</scope>
+			<systemPath>${project.basedir}/lib/kettle/json-simple-1.1.jar</systemPath>
+		</dependency>
+
 
 		<dependency>
 			<groupId>net.sourceforge.jexcelapi</groupId>
@@ -190,6 +250,23 @@
 			<scope>system</scope>
 			<systemPath>${project.basedir}/lib/kettle/metastore-9.3.0.0-428.jar</systemPath>
 		</dependency>
+		
+		<dependency>
+		    <groupId>org.pentaho.di.plugins</groupId>
+		    <artifactId>pdi-core-plugins-impl</artifactId>
+		    <version>9.3.0.0-428</version>
+		    <scope>system</scope>
+			<systemPath>${project.basedir}/lib/kettle/pdi-core-plugins-impl-9.3.0.0-428.jar</systemPath>
+		</dependency>
+		
+		<dependency>
+		    <groupId>org.pentaho.di.plugins</groupId>
+		    <artifactId>pdi-xml-plugin-core</artifactId>
+		    <version>9.3.0.0-428</version>
+		    <scope>system</scope>
+			<systemPath>${project.basedir}/lib/kettle/pdi-xml-plugin-core-9.3.0.0-428.jar</systemPath>
+		</dependency>
+
 
 		<dependency>
 			<groupId>org.pentaho</groupId>
@@ -221,6 +298,14 @@
 			<version>4.1.1</version>
 			<scope>system</scope>
 			<systemPath>${project.basedir}/lib/kettle/poi-ooxml-schemas-4.1.1.jar</systemPath>
+		</dependency>
+
+		<dependency>
+		    <groupId>org.scannotation</groupId>
+		    <artifactId>scannotation</artifactId>
+		    <version>1.0.2</version>
+		    <scope>system</scope>
+			<systemPath>${project.basedir}/lib/kettle/scannotation-1.0.2.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -295,4 +380,5 @@
 		</plugins>
 	</build>
 
+	<packaging>war</packaging>
 </project>
