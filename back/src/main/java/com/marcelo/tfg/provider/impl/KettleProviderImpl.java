@@ -27,7 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 @Slf4j
 public class KettleProviderImpl implements KettleProvider {
-
+	
 	@Override
 	public KettleDto executeTransformation(MultipartFile kettleFile, LogLevelKettle logLevelKettle) {
 		Boolean isKettleFile = KettleUtils.checkExtensionKettle(kettleFile);
@@ -39,13 +39,13 @@ public class KettleProviderImpl implements KettleProvider {
 			return ktr;
 		}
 
-		File tempKettle = FileUtils.convertMultipartFileToTmpFile(kettleFile);
+		File tempKettle = FileUtils.convertMultipartFileToTmpFile(kettleFile, "ktr");
 		if (tempKettle == null) {
 			ktr.setErrores(1);
 			ktr.setMensaje("Error al convertir el fichero");
 			return ktr;
 		}
-		tempKettle = KettleUtils.modifyXmlTransformationPath(tempKettle);
+		tempKettle = KettleUtils.modifyXmlTransformationPath(tempKettle, null);
 
 		String logChannelId = null;
 		try {
@@ -58,6 +58,7 @@ public class KettleProviderImpl implements KettleProvider {
 
 			executeTransformation(trans, logChannelId, ktr);
 
+			eliminaFicheroKtr(tempKettle);
 			KettleEnvironment.shutdown();
 		} catch (KettleException e) {
 			if (logChannelId != null)
@@ -67,7 +68,7 @@ public class KettleProviderImpl implements KettleProvider {
 			ktr.setMensaje("Error al ejecutar la transformación de Kettle");
 			log.error(ktr.getMensaje(), e);
 		} finally {
-			eliminaFicheroKtr(tempKettle);
+//			eliminaFicheroKtr(tempKettle);
 		}
 
 		return ktr;
@@ -85,7 +86,7 @@ public class KettleProviderImpl implements KettleProvider {
 			return ktr;
 		}
 
-		File tempKettle = FileUtils.convertMultipartFileToTmpFile(kettleFile);
+		File tempKettle = FileUtils.convertMultipartFileToTmpFile(kettleFile, "ktr");
 		if (tempKettle == null) {
 			ktr.setErrores(1);
 			ktr.setMensaje("Error al convertir el fichero");
@@ -94,13 +95,13 @@ public class KettleProviderImpl implements KettleProvider {
 
 		List<File> tempKettleFiles = new ArrayList<>();
 		for (MultipartFile file : files) {
-			tempKettleFiles.add(FileUtils.convertMultipartFileToTmpFile(file));
+			String nombreCompletoArchivo = file.getOriginalFilename();
+			String extension = nombreCompletoArchivo.split("\\.")[1];
+			tempKettleFiles.add(FileUtils.convertMultipartFileToTmpFile(file, extension));
 		}
 
-		tempKettle = KettleUtils.modifyXmlTransformationPath(tempKettle);
+		tempKettle = KettleUtils.modifyXmlTransformationPath(tempKettle, tempKettleFiles);
 		log.info("tam " + tempKettle.length() + " bytes");
-		// Necesito conocer la ruta y el nombre de los ficheros y pasarselos a la
-		// funcion
 
 		String logChannelId = null;
 		try {
@@ -113,6 +114,8 @@ public class KettleProviderImpl implements KettleProvider {
 
 			executeTransformation(trans, logChannelId, ktr);
 
+			eliminaFicheroKtr(tempKettle);
+			eliminaAdjuntosKtr(tempKettleFiles);
 			KettleEnvironment.shutdown();
 		} catch (KettleException e) {
 			if (logChannelId != null)
@@ -122,8 +125,8 @@ public class KettleProviderImpl implements KettleProvider {
 			ktr.setMensaje("Error al ejecutar la transformación de Kettle");
 			log.error(ktr.getMensaje(), e);
 		} finally {
-			eliminaFicheroKtr(tempKettle);
-			eliminaAdjuntosKtr(tempKettleFiles);
+//			eliminaFicheroKtr(tempKettle);
+//			eliminaAdjuntosKtr(tempKettleFiles);
 		}
 
 		return ktr;
@@ -141,7 +144,7 @@ public class KettleProviderImpl implements KettleProvider {
 
 	@Override
 	public KettleDto executeJob(MultipartFile kettleFile) {
-		File temp = FileUtils.convertMultipartFileToTmpFile(kettleFile);
+		File temp = FileUtils.convertMultipartFileToTmpFile(kettleFile, "kjb");
 
 		KettleDto kjb = new KettleDto();
 
@@ -224,7 +227,7 @@ public class KettleProviderImpl implements KettleProvider {
 		log.info("KettleEnvironment inicializado : " + KettleEnvironment.isInitialized());
 	}
 
-	private void addPlugins() {
+	private void addPlugins() { // TODO: Hacerlo relativo y dentro del modulo
 		// JSON input/output
 		StepPluginType.getInstance().getPluginFolders().add(new PluginFolder(
 				"C:/Users\\mcarro\\Downloads\\TFG_assets\\data-integration\\plugins\\kettle-json-plugin", false, true));
@@ -270,7 +273,7 @@ public class KettleProviderImpl implements KettleProvider {
 	 * @param ktr
 	 * @throws KettleException
 	 */
-	private void executeTransformation(Trans trans, String logChannelId, KettleDto ktr) throws KettleException {
+	private /*TODO: synchronized*/ void executeTransformation(Trans trans, String logChannelId, KettleDto ktr) throws KettleException {
 		log.info("Ejecutando transformacion...");
 		trans.execute(null); // trans.execute(new String[]{});
 		trans.waitUntilFinished();

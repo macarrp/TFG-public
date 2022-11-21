@@ -6,7 +6,11 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -36,7 +40,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class KettleUtils {
-
+	
 	/**
 	 * Recoge los logs de Kettle incluyendo un salto de linea y 
 	 * los almacena en una String
@@ -76,7 +80,7 @@ public class KettleUtils {
 	 * 
 	 * @return File con la ruta interior modificada
 	 */
-	public static File modifyXmlTransformationPath(File kettleFile) {
+	public static File modifyXmlTransformationPath(File kettleFile, List<File> tempKettleFiles) {
 		String msgError = "El fichero no se ha modificado \n";
 		log.info("tam file: " + kettleFile.length() + " bytes");
 
@@ -96,28 +100,35 @@ public class KettleUtils {
 						Node name = files.item(j);
 						if (name.getNodeType() == Node.ELEMENT_NODE) {
 							if ("name".equalsIgnoreCase(name.getNodeName())) {
-								log.info("Ruta encontrada en el ktr: " + name.getTextContent());
-
+								log.info("Ruta encontrada DENTRO del ktr: " + name.getTextContent());
+								
 								// Cambiamos la ruta del fichero para que apunte a la ruta temporal
+								if(tempKettleFiles != null) { // TODO: Cambiar por boolean
+									List<Path> possiblePaths = findByFileName(new File(Constantes.tmpDir).toPath(), "kettle_");
+									for (Path path : possiblePaths) {
+										String pathKettleFilename = new File(path.toString()).getName();
+										String pathFilename = pathKettleFilename.split("kettle_")[1];
+										
+										String nombreDentroNodo = new File(name.getTextContent()).getName().split("\\.")[0];
+										
+										// Si no tiene extension, es un fichero de salida
+										String[] adjuntoNombre = new File(name.getTextContent()).getName().split("\\.");
+										if(adjuntoNombre.length <= 1) {
+											name.setTextContent(Constantes.tmpDir + adjuntoNombre[0]);
+											continue;
+										}
+										
+										if(pathFilename.startsWith(nombreDentroNodo)) {
+											log.info("fichero encontrado, asignando..." + Constantes.tmpDir + pathKettleFilename);
+											name.setTextContent(Constantes.tmpDir + pathKettleFilename);
+										}
+									}
+								}
+								else {
+									name.setTextContent(kettleFile.getCanonicalPath());
+								}
 								
-								// TODO: Ficheros de resultado
-//								String[] rutaCompleta = name.getTextContent().split("\\."); 
-//								String extension = rutaCompleta[rutaCompleta.length -1];
-//								String[] nombreFich = rutaCompleta[0].split("/");
-//								String nombre = nombreFich[nombreFich.length -1];
-//								
-//								String nombreCompletoFichero = nombre + "." + extension;
-//								
-//								String path = kettleFile.getPath();
-//								String[] pathSplit = path.split("\\\\");
-//								pathSplit[pathSplit.length-1] = nombreCompletoFichero;
-//								String newPath = String.join("/", pathSplit);
-								
-//								name.setTextContent(newPath); 
-								
-								name.setTextContent(kettleFile.getCanonicalPath());
-
-								log.info("Ruta nueva del ktr: " + name.getTextContent());
+								log.info("Ruta nueva DENTRO del ktr: " + name.getTextContent());
 							}
 						}
 					}
@@ -150,4 +161,19 @@ public class KettleUtils {
 		
 		return kettleFile;
 	}
+	
+	public static List<Path> findByFileName(Path path, String fileName)
+            throws IOException {
+
+        List<Path> result;
+        try (Stream<Path> pathStream = Files.find(path,
+                Integer.MAX_VALUE,
+                (p, basicFileAttributes) ->
+                        p.getFileName().toString().startsWith(fileName))
+        ) {
+            result = pathStream.collect(Collectors.toList());
+        }
+        return result;
+
+    }
 }

@@ -20,14 +20,17 @@ import lombok.extern.slf4j.Slf4j;
 public class FileUtils {
 
 	/**
-	 * Convierte el MultipartFile a un File temporal. 
+	 * Convierte el MultipartFile a un File temporal. Se da la opcion de añadir la extension.
+	 * Ejemplo: "ktr"
+	 * 
 	 * Devuelve null si no se puede hacer la conversion.
 	 * 
 	 * @param fileToConvert 
+	 * @param extension La extension del fichero
 	 * 
 	 * @return File guardado en la carpeta temporal del sistema
 	 */
-	public static File convertMultipartFileToTmpFile(MultipartFile fileToConvert) {
+	public static File convertMultipartFileToTmpFile(MultipartFile fileToConvert, String extension) {
 		if (fileToConvert == null)
 			return null;
 
@@ -38,7 +41,7 @@ public class FileUtils {
 			String nombre = nombreCompletoArchivo.split("\\.")[0];
 
 			// Parameter 3 - Default tmp directory of the system
-			temp = File.createTempFile("kettle_" + nombre, ".ktr", null);
+			temp = File.createTempFile("kettle_" + nombre, "." + extension, null);
 
 			log.info("Fichero temporal creado con exito, volcando bytes...");
 
