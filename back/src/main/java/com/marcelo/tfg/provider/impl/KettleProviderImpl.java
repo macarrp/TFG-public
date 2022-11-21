@@ -18,7 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.marcelo.tfg.dto.KettleDto;
 import com.marcelo.tfg.provider.KettleProvider;
-import com.marcelo.tfg.utils.FileUtils;
+import com.marcelo.tfg.utils.FileUtilsTFG;
 import com.marcelo.tfg.utils.KettleUtils;
 import com.marcelo.tfg.utils.enums.LogLevelKettle;
 
@@ -39,13 +39,13 @@ public class KettleProviderImpl implements KettleProvider {
 			return ktr;
 		}
 
-		File tempKettle = FileUtils.convertMultipartFileToTmpFile(kettleFile, "ktr");
+		File tempKettle = FileUtilsTFG.convertMultipartFileToTmpFile(kettleFile, "ktr");
 		if (tempKettle == null) {
 			ktr.setErrores(1);
 			ktr.setMensaje("Error al convertir el fichero");
 			return ktr;
 		}
-		tempKettle = KettleUtils.modifyXmlTransformationPath(tempKettle, null);
+		tempKettle = KettleUtils.modifyXmlTransformationPath(tempKettle, false);
 
 		String logChannelId = null;
 		try {
@@ -56,7 +56,7 @@ public class KettleProviderImpl implements KettleProvider {
 
 			setLogLevel(logLevelKettle, trans);
 
-			executeTransformation(trans, logChannelId, ktr);
+			executeTrans(trans, logChannelId, ktr);
 
 			eliminaFicheroKtr(tempKettle);
 			KettleEnvironment.shutdown();
@@ -86,7 +86,7 @@ public class KettleProviderImpl implements KettleProvider {
 			return ktr;
 		}
 
-		File tempKettle = FileUtils.convertMultipartFileToTmpFile(kettleFile, "ktr");
+		File tempKettle = FileUtilsTFG.convertMultipartFileToTmpFile(kettleFile, "ktr");
 		if (tempKettle == null) {
 			ktr.setErrores(1);
 			ktr.setMensaje("Error al convertir el fichero");
@@ -97,10 +97,10 @@ public class KettleProviderImpl implements KettleProvider {
 		for (MultipartFile file : files) {
 			String nombreCompletoArchivo = file.getOriginalFilename();
 			String extension = nombreCompletoArchivo.split("\\.")[1];
-			tempKettleFiles.add(FileUtils.convertMultipartFileToTmpFile(file, extension));
+			tempKettleFiles.add(FileUtilsTFG.convertMultipartFileToTmpFile(file, extension));
 		}
 
-		tempKettle = KettleUtils.modifyXmlTransformationPath(tempKettle, tempKettleFiles);
+		tempKettle = KettleUtils.modifyXmlTransformationPath(tempKettle, true);
 		log.info("tam " + tempKettle.length() + " bytes");
 
 		String logChannelId = null;
@@ -112,7 +112,7 @@ public class KettleProviderImpl implements KettleProvider {
 
 			setLogLevel(logLevel, trans);
 
-			executeTransformation(trans, logChannelId, ktr);
+			executeTrans(trans, logChannelId, ktr);
 
 			eliminaFicheroKtr(tempKettle);
 			eliminaAdjuntosKtr(tempKettleFiles);
@@ -132,6 +132,7 @@ public class KettleProviderImpl implements KettleProvider {
 		return ktr;
 	}
 
+	
 	public KettleDto executeTransformation(File kettleFile, LogLevelKettle logLevelKettle) {
 		return null;
 	}
@@ -142,9 +143,10 @@ public class KettleProviderImpl implements KettleProvider {
 
 	}
 
+	
 	@Override
 	public KettleDto executeJob(MultipartFile kettleFile) {
-		File temp = FileUtils.convertMultipartFileToTmpFile(kettleFile, "kjb");
+		File temp = FileUtilsTFG.convertMultipartFileToTmpFile(kettleFile, "kjb");
 
 		KettleDto kjb = new KettleDto();
 
@@ -201,7 +203,7 @@ public class KettleProviderImpl implements KettleProvider {
 			kjb.setMensaje("Error al ejecutar el trabajo de Kettle");
 			log.error(kjb.getMensaje(), e);
 		} finally {
-			boolean eliminado = FileUtils.deleteFileIfExists(temp);
+			boolean eliminado = FileUtilsTFG.deleteFile(temp);
 			log.info("Fichero eliminado: " + eliminado);
 		}
 
@@ -273,15 +275,16 @@ public class KettleProviderImpl implements KettleProvider {
 	 * @param ktr
 	 * @throws KettleException
 	 */
-	private /*TODO: synchronized*/ void executeTransformation(Trans trans, String logChannelId, KettleDto ktr) throws KettleException {
+	private void executeTrans(Trans trans, String logChannelId, KettleDto ktr) throws KettleException {
 		log.info("Ejecutando transformacion...");
 		trans.execute(null); // trans.execute(new String[]{});
 		trans.waitUntilFinished();
 
 		log.info("Transformacion ejecutada, recogiendo logs...");
 		ktr.setLog(KettleUtils.getKettleLogs(logChannelId));
+		log.info("Logs recogidos...");
+		
 		ktr.setErrores(trans.getErrors());
-
 		setKettleErrorMsg(ktr);
 	}
 
@@ -292,7 +295,7 @@ public class KettleProviderImpl implements KettleProvider {
 	 * @return true si el fichero se ha eliminado, false en caso contrario
 	 */
 	private boolean eliminaFicheroKtr(File ktr) {
-		boolean eliminado = FileUtils.deleteFileIfExists(ktr);
+		boolean eliminado = FileUtilsTFG.deleteFile(ktr);
 		log.info("Fichero eliminado: " + eliminado);
 		return eliminado;
 	}
@@ -304,7 +307,7 @@ public class KettleProviderImpl implements KettleProvider {
 	 * @return true si todos los ficheros se han eliminado, false en caso contrario
 	 */
 	private boolean eliminaAdjuntosKtr(List<File> adjuntos) {
-		boolean adjuntosEliminados = FileUtils.deleteMultipleFilesIfExists(adjuntos);
+		boolean adjuntosEliminados = FileUtilsTFG.deleteMultipleFiles(adjuntos);
 		log.info(adjuntos.size() + " ficheros adjuntos eliminados: " + adjuntosEliminados);
 		return adjuntosEliminados;
 	}

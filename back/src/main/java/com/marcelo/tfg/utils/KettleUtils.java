@@ -76,11 +76,12 @@ public class KettleUtils {
 	/**
 	 * Modifica la ruta de los ficheros adjuntos de la transformación por la ruta temporal del sistema
 	 * 
-	 * @param kettleFile el ktr
+	 * @param kettleFile - La transformacion ktr
+	 * @param llevaAdjuntos - Booleano que controla si la transformacion lleva adjuntos
 	 * 
 	 * @return File con la ruta interior modificada
 	 */
-	public static File modifyXmlTransformationPath(File kettleFile, List<File> tempKettleFiles) {
+	public static File modifyXmlTransformationPath(File kettleFile, boolean llevaAdjuntos) {
 		String msgError = "El fichero no se ha modificado \n";
 		log.info("tam file: " + kettleFile.length() + " bytes");
 
@@ -102,19 +103,20 @@ public class KettleUtils {
 							if ("name".equalsIgnoreCase(name.getNodeName())) {
 								log.info("Ruta encontrada DENTRO del ktr: " + name.getTextContent());
 								
+								String[] nombreNodoSplit = new File(name.getTextContent()).getName().split("\\.");
+								String nombreDentroNodo = nombreNodoSplit[0];
+								
 								// Cambiamos la ruta del fichero para que apunte a la ruta temporal
-								if(tempKettleFiles != null) { // TODO: Cambiar por boolean
-									List<Path> possiblePaths = findByFileName(new File(Constantes.tmpDir).toPath(), "kettle_");
+								if(llevaAdjuntos) {
+									List<Path> possiblePaths = findByFilenameStartsWith(new File(Constantes.tmpDir).toPath(), "kettle_");
 									for (Path path : possiblePaths) {
 										String pathKettleFilename = new File(path.toString()).getName();
 										String pathFilename = pathKettleFilename.split("kettle_")[1];
 										
-										String nombreDentroNodo = new File(name.getTextContent()).getName().split("\\.")[0];
-										
 										// Si no tiene extension, es un fichero de salida
-										String[] adjuntoNombre = new File(name.getTextContent()).getName().split("\\.");
-										if(adjuntoNombre.length <= 1) {
-											name.setTextContent(Constantes.tmpDir + adjuntoNombre[0]);
+										// Es decir, el array tiene tam 1
+										if(nombreNodoSplit.length <= 1) {
+											name.setTextContent(Constantes.tmpDir + nombreNodoSplit[0]);
 											continue;
 										}
 										
@@ -125,7 +127,8 @@ public class KettleUtils {
 									}
 								}
 								else {
-									name.setTextContent(kettleFile.getCanonicalPath());
+									File nuevaRuta = new File(Constantes.tmpDir + nombreDentroNodo);
+									name.setTextContent(nuevaRuta.getCanonicalPath());
 								}
 								
 								log.info("Ruta nueva DENTRO del ktr: " + name.getTextContent());
@@ -162,14 +165,14 @@ public class KettleUtils {
 		return kettleFile;
 	}
 	
-	public static List<Path> findByFileName(Path path, String fileName)
+	private static List<Path> findByFilenameStartsWith(Path path, String filename)
             throws IOException {
 
         List<Path> result;
         try (Stream<Path> pathStream = Files.find(path,
                 Integer.MAX_VALUE,
                 (p, basicFileAttributes) ->
-                        p.getFileName().toString().startsWith(fileName))
+                        p.getFileName().toString().startsWith(filename))
         ) {
             result = pathStream.collect(Collectors.toList());
         }

@@ -17,7 +17,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 
 @Slf4j
-public class FileUtils {
+public class FileUtilsTFG {
 
 	/**
 	 * Convierte el MultipartFile a un File temporal. Se da la opcion de añadir la extension.
@@ -35,8 +35,9 @@ public class FileUtils {
 			return null;
 
 		File temp = null;
+		FileOutputStream fos = null;
 		try {
-			log.info("Creando fichero temporal");
+			log.info("Creando fichero temporal...");
 			String nombreCompletoArchivo = fileToConvert.getOriginalFilename();
 			String nombre = nombreCompletoArchivo.split("\\.")[0];
 
@@ -45,13 +46,21 @@ public class FileUtils {
 
 			log.info("Fichero temporal creado con exito, volcando bytes...");
 
-			FileOutputStream fos = new FileOutputStream(temp);
+			fos = new FileOutputStream(temp);
 			fos.write(fileToConvert.getBytes());
-			fos.close();
-
+			
 			log.info("Conversion terminada, ruta completa del fichero: " + temp.getPath());
 		} catch (IOException e) {
 			log.error("Error al convertir fichero " + fileToConvert.getName(), e);
+		} finally {
+			if(fos != null) {
+				try {
+					fos.close();
+				} catch (IOException e) {
+					log.error("Error al cerrar la transmision de fos", e);
+					e.printStackTrace();
+				}
+			}
 		}
 
 		log.info("Tam del fichero: " + temp.length() + " bytes");
@@ -63,9 +72,9 @@ public class FileUtils {
 	 * 
 	 * @param file
 	 * 
-	 * @return true si el fichero se ha eliminado, false en caso contrario
+	 * @return true si el fichero se ha eliminado, false en caso contrario o si el parametro es null
 	 */
-	public static boolean deleteFileIfExists(File file) {
+	public static boolean deleteFile(File file) {
 		if (file == null)
 			return false;
 
@@ -78,9 +87,9 @@ public class FileUtils {
 	 * 
 	 * @param files
 	 * 
-	 * @return true si todos los ficheros se han eliminado, false en caso contrario
+	 * @return true si todos los ficheros se han eliminado, false en caso contrario o si el parametro es null
 	 */
-	public static boolean deleteMultipleFilesIfExists(List<File> files) {
+	public static boolean deleteMultipleFiles(List<File> files) {
 		if (files == null)
 			return false;
 
