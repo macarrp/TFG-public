@@ -1,0 +1,33 @@
+server:
+#  show-version: true
+  servlet:
+    context-path: /demo/api
+  port: 8080
+
+spring:
+  messages:
+    encoding: ISO-8859-1
+  mvc:
+    dispatch-options-request: true
+  servlet:
+    multipart:
+      # Tamano maximo de archivo subido a 20MB
+      max-file-size: 20971520
+      max-request-size: 23068680 
+  
+  datasource:
+
+      driverClassName: oracle.jdbc.OracleDriver
+      url: jdbc:oracle:thin:@localhost:1521:orcl 
+      username: MARCELO #work
+      password: 123456
+
+  jpa:
+    show-sql : false 
+    generate-ddl: false  
+    open-in-view: false
+    database-platform: org.hibernate.dialect.Oracle12cDialect
+    hibernate:
+      ddl-auto: none
+      
+      
