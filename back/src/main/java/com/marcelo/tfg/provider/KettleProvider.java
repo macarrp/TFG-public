@@ -1,5 +1,6 @@
 package com.marcelo.tfg.provider;
 
+import java.io.File;
 import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
@@ -17,6 +18,8 @@ import com.marcelo.tfg.utils.enums.LogLevelKettle;
 
 public interface KettleProvider {
 
+	/* API REST */
+	
 	/**
 	 * Ejecutar transformacion desde una API REST
 	 * 
@@ -29,7 +32,7 @@ public interface KettleProvider {
 	KettleDto executeTransformation(MultipartFile kettleFile, LogLevelKettle logLevel);
 	
 	/**
-	 * Ejecutar transformacion con adjuntos desde una API REST
+	 * Ejecutar transformacion con ficheros adjuntos desde una API REST
 	 * 
 	 * @param kettleFile el fichero ktr a ejecutar
 	 * @param logLevel parametro opcional sobre el nivel de los logs de la transformacion
@@ -39,6 +42,30 @@ public interface KettleProvider {
 	 */
 	KettleDto executeTransformationWithAttachments(MultipartFile kettleFile, List<MultipartFile> files, LogLevelKettle logLevel);
 
+	
+	/* Provider */
+	/**
+	 * Ejecutar transformacion
+	 * 
+	 * @param kettleFile el fichero ktr a ejecutar
+	 * @param logLevel parametro opcional sobre el nivel de los logs de la transformacion
+	 * 
+	 * @return KettleDto 
+	 * @see KettleDto
+	 */
+	KettleDto executeTransformation(File kettleFile, LogLevelKettle logLevelKettle);
+	
+	/**
+	 * Ejecutar transformacion con ficheros adjuntos
+	 * 
+	 * @param kettleFile el fichero ktr a ejecutar
+	 * @param logLevel parametro opcional sobre el nivel de los logs de la transformacion
+	 * 
+	 * @return KettleDto 
+	 * @see KettleDto
+	 */
+	KettleDto executeKettleTransformationWithAttachments(File kettleFile, List<File> files,
+			LogLevelKettle logLevel);
 	
 	
 	KettleDto executeJob(MultipartFile kettleFile);

@@ -47,29 +47,7 @@ public class KettleProviderImpl implements KettleProvider {
 		}
 		tempKettle = KettleUtils.modifyXmlTransformationPath(tempKettle, false);
 
-		String logChannelId = null;
-		try {
-			KettleInit();
-
-			Trans trans = new Trans(new TransMeta(tempKettle.getPath()));
-			logChannelId = trans.getLogChannelId();
-
-			setLogLevel(logLevelKettle, trans);
-
-			executeTrans(trans, logChannelId, ktr);
-
-			eliminaFicheroKtr(tempKettle);
-			KettleEnvironment.shutdown();
-		} catch (KettleException e) {
-			if (logChannelId != null)
-				ktr.setLog(KettleUtils.getKettleLogs(logChannelId));
-
-			ktr.setErrores(ktr.getErrores() + 1);
-			ktr.setMensaje("Error al ejecutar la transformación de Kettle");
-			log.error(ktr.getMensaje(), e);
-		} finally {
-//			eliminaFicheroKtr(tempKettle);
-		}
+		execute(tempKettle, logLevelKettle, ktr, null);
 
 		return ktr;
 	}
@@ -103,40 +81,17 @@ public class KettleProviderImpl implements KettleProvider {
 		tempKettle = KettleUtils.modifyXmlTransformationPath(tempKettle, true);
 		log.info("tam " + tempKettle.length() + " bytes");
 
-		String logChannelId = null;
-		try {
-			KettleInit();
-
-			Trans trans = new Trans(new TransMeta(tempKettle.getPath()));
-			logChannelId = trans.getLogChannelId();
-
-			setLogLevel(logLevel, trans);
-
-			executeTrans(trans, logChannelId, ktr);
-
-			eliminaFicheroKtr(tempKettle);
-			eliminaAdjuntosKtr(tempKettleFiles);
-			KettleEnvironment.shutdown();
-		} catch (KettleException e) {
-			if (logChannelId != null)
-				ktr.setLog(KettleUtils.getKettleLogs(logChannelId));
-
-			ktr.setErrores(ktr.getErrores() + 1);
-			ktr.setMensaje("Error al ejecutar la transformación de Kettle");
-			log.error(ktr.getMensaje(), e);
-		} finally {
-//			eliminaFicheroKtr(tempKettle);
-//			eliminaAdjuntosKtr(tempKettleFiles);
-		}
+		execute(tempKettle, logLevel, ktr, tempKettleFiles);
 
 		return ktr;
 	}
 
-	
+	@Override
 	public KettleDto executeTransformation(File kettleFile, LogLevelKettle logLevelKettle) {
 		return null;
 	}
 
+	@Override
 	public KettleDto executeKettleTransformationWithAttachments(File kettleFile, List<File> files,
 			LogLevelKettle logLevel) {
 		return null;
@@ -267,6 +222,34 @@ public class KettleProviderImpl implements KettleProvider {
 			ktr.setMensaje("Han habido errores durante la transformación");
 	}
 
+	private void execute(File tempKettle, LogLevelKettle logLevelKettle, KettleDto ktrDto, List<File> adjuntos) {
+		String logChannelId = null;
+		try {
+			KettleInit();
+
+			Trans trans = new Trans(new TransMeta(tempKettle.getPath()));
+			logChannelId = trans.getLogChannelId();
+
+			setLogLevel(logLevelKettle, trans);
+
+			executeTrans(trans, logChannelId, ktrDto);
+
+			log.info("Ejecucion finalizada");
+			KettleEnvironment.shutdown();
+		} catch (KettleException e) {
+			if (logChannelId != null)
+				ktrDto.setLog(KettleUtils.getKettleLogs(logChannelId));
+
+			ktrDto.setErrores(ktrDto.getErrores() + 1);
+			ktrDto.setMensaje("Error al ejecutar la transformación de Kettle");
+			log.error(ktrDto.getMensaje(), e);
+		} finally {
+			log.info("Kettle shutdown? " + KettleEnvironment.isInitialized());
+			eliminaFicheroKtr(tempKettle);
+			eliminaAdjuntosKtr(adjuntos);
+		}
+	}
+	
 	/**
 	 * Ejecuta la transformacion de Kettle
 	 * 

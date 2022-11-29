@@ -103,14 +103,16 @@ public class KettleUtils {
 							if ("name".equalsIgnoreCase(name.getNodeName())) {
 								log.info("Ruta encontrada DENTRO del ktr: " + name.getTextContent());
 								
-								String[] nombreNodoSplit = new File(name.getTextContent()).getName().split("\\.");
+								File filepath = new File(name.getTextContent());
+								String[] nombreNodoSplit = filepath.getName().split("\\.");
 								String nombreDentroNodo = nombreNodoSplit[0];
 								
 								// Cambiamos la ruta del fichero para que apunte a la ruta temporal
 								if(llevaAdjuntos) {
 									List<Path> possiblePaths = findByFilenameStartsWith(new File(Constantes.tmpDir).toPath(), "kettle_");
 									for (Path path : possiblePaths) {
-										String pathKettleFilename = new File(path.toString()).getName();
+										File pathKetleFile = new File(path.toString());
+										String pathKettleFilename = pathKetleFile.getName();
 										String pathFilename = pathKettleFilename.split("kettle_")[1];
 										
 										// Si no tiene extension, es un fichero de salida

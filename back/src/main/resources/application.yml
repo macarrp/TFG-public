@@ -1,46 +1,46 @@
-server:
-#  show-version: true
-  servlet:
-    context-path: /tfg/api
-  port: 8080
-
-spring:
-  messages:
-    encoding: ISO-8859-1
-  mvc:
-    dispatch-options-request: true
-  servlet:
-    multipart:
-      # Tamano maximo de archivo subido a 20MB
-      max-file-size: 20971520
-      max-request-size: 23068680 
-  
-  datasource:
+#server:
+##  show-version: true
+#  servlet:
+#    context-path: /tfg/api
+#  port: 8080
+#
+#spring:
+#  messages:
+#    encoding: ISO-8859-1
+#  mvc:
+#    dispatch-options-request: true
+#  servlet:
+#    multipart:
+#      # Tamano maximo de archivo subido a 20MB
+#      max-file-size: 20971520
+#      max-request-size: 23068680 
+#  
+#  datasource:
+##      driverClassName: oracle.jdbc.OracleDriver
+##      jndi-name: tfg.tfgOracleDatasource
+##      url: jdbc:oracle:thin:@localhost:1521:TFG 
+##      username: MARCE_PC #home
+##      password: 123456
+#
 #      driverClassName: oracle.jdbc.OracleDriver
-#      jndi-name: tfg.tfgOracleDatasource
-#      url: jdbc:oracle:thin:@localhost:1521:TFG 
-#      username: MARCE_PC #home
+#      url: jdbc:oracle:thin:@localhost:1521:orcl 
+#      username: MARCELO #work
 #      password: 123456
-
-      driverClassName: oracle.jdbc.OracleDriver
-      url: jdbc:oracle:thin:@localhost:1521:orcl 
-      username: MARCELO #work
-      password: 123456
-      
-#      platform: oracle
-#      jndi-name: tfg.tfgOracleDatasource
-#      driverClassName: 
-#      urlconnection: 
-#      u_connection: 
-#      p_connection:
-
-#    
-  jpa:
-    show-sql : false 
-    generate-ddl: false  
-    open-in-view: false
-    database-platform: org.hibernate.dialect.Oracle12cDialect
-    hibernate:
-      ddl-auto: none
+#      
+##      platform: oracle
+##      jndi-name: tfg.tfgOracleDatasource
+##      driverClassName: 
+##      urlconnection: 
+##      u_connection: 
+##      p_connection:
+#
+##    
+#  jpa:
+#    show-sql : false 
+#    generate-ddl: false  
+#    open-in-view: false
+#    database-platform: org.hibernate.dialect.Oracle12cDialect
+#    hibernate:
+#      ddl-auto: none
       
   

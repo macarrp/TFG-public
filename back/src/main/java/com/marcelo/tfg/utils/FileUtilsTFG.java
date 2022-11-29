@@ -72,11 +72,12 @@ public class FileUtilsTFG {
 	 * 
 	 * @param file
 	 * 
-	 * @return true si el fichero se ha eliminado, false en caso contrario o si el parametro es null
+	 * @return true si se ha eliminado el fichero o si no existe. False si no se ha podido
+	 * borra todos los fichero
 	 */
 	public static boolean deleteFile(File file) {
 		if (file == null)
-			return false;
+			return true;
 
 		log.info("Eliminando fichero en la ruta => " + file.getPath());
 		return file.delete();
@@ -87,11 +88,12 @@ public class FileUtilsTFG {
 	 * 
 	 * @param files
 	 * 
-	 * @return true si todos los ficheros se han eliminado, false en caso contrario o si el parametro es null
+	 * @return true si todos los ficheros se han eliminado o si la lista esta vacia. False si no se han podido
+	 * borrar todos los ficheros
 	 */
 	public static boolean deleteMultipleFiles(List<File> files) {
 		if (files == null)
-			return false;
+			return true;
 
 		int filesDeleted = 0;
 		for (File file : files) {
