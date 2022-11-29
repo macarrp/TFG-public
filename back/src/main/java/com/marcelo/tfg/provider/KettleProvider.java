@@ -3,6 +3,7 @@ package com.marcelo.tfg.provider;
 import java.io.File;
 import java.util.List;
 
+import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.marcelo.tfg.dto.KettleDto;
@@ -34,8 +35,9 @@ public interface KettleProvider {
 	/**
 	 * Ejecutar transformacion con ficheros adjuntos desde una API REST
 	 * 
-	 * @param kettleFile el fichero ktr a ejecutar
-	 * @param logLevel parametro opcional sobre el nivel de los logs de la transformacion
+	 * @param kettleFile - El fichero ktr a ejecutar
+	 * @param files - Los ficheros adjuntos
+	 * @param logLevel - Parametro opcional sobre el nivel de los logs de la transformacion
 	 * 
 	 * @return KettleDto 
 	 * @see KettleDto
@@ -47,8 +49,8 @@ public interface KettleProvider {
 	/**
 	 * Ejecutar transformacion
 	 * 
-	 * @param kettleFile el fichero ktr a ejecutar
-	 * @param logLevel parametro opcional sobre el nivel de los logs de la transformacion
+	 * @param kettleFile - El fichero ktr a ejecutar
+	 * @param logLevelKettle - Parametro opcional sobre el nivel de los logs de la transformacion
 	 * 
 	 * @return KettleDto 
 	 * @see KettleDto
@@ -58,8 +60,9 @@ public interface KettleProvider {
 	/**
 	 * Ejecutar transformacion con ficheros adjuntos
 	 * 
-	 * @param kettleFile el fichero ktr a ejecutar
-	 * @param logLevel parametro opcional sobre el nivel de los logs de la transformacion
+	 * @param kettleFile - El fichero ktr a ejecutar
+	 * @param files - Los ficheros adjuntos
+	 * @param logLevel - Parametro opcional sobre el nivel de los logs de la transformacion
 	 * 
 	 * @return KettleDto 
 	 * @see KettleDto

@@ -45,8 +45,8 @@ public class KettleUtils {
 	 * Recoge los logs de Kettle incluyendo un salto de linea y 
 	 * los almacena en una String
 	 * 
-	 * @param logChannelId
-	 * @return String
+	 * @param logChannelId - id del canal de Kettle
+	 * @return String - Los logs de la ejecucion
 	 */
 	public static String getKettleLogs(String logChannelId) {
 		List<KettleLoggingEvent> kle = KettleLogStore.
@@ -64,13 +64,15 @@ public class KettleUtils {
 	/**
 	 * Verifica que el argumento pasado como parámetro tiene extensión ktr o kbj
 	 * 
-	 * @param kettleFile
+	 * @param kettleFile - Verifica la extension del fichero
 	 * @return true si es '.ktr' o 'kjb'. Falso en caso contrario
 	 */
 	public static Boolean checkExtensionKettle(MultipartFile kettleFile) {
 		String[] fileParts = kettleFile.getOriginalFilename().split("\\.");
 		String extension = fileParts[fileParts.length -1]; 
-		return extension.equals("ktr") || extension.equals("kjb") || extension.equals("xml");
+		return Constantes.Extension.KTR.equals(extension) 
+				|| Constantes.Extension.KJB.equals(extension) 
+				|| Constantes.Extension.XML.equals(extension);
 	}
 	
 	/**
@@ -87,7 +89,9 @@ public class KettleUtils {
 
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		
-		try (InputStream is = new FileInputStream(kettleFile)) {
+		FileWriter writer = null;
+		
+		try (InputStream is = new FileInputStream(kettleFile); /*FileWriter writer = new FileWriter(kettleFile)*/) {
 			DocumentBuilder db = dbf.newDocumentBuilder();
 			Document doc = db.parse(is);
 
@@ -142,13 +146,15 @@ public class KettleUtils {
 
 			// write the content into xml file
 			DOMSource source = new DOMSource(doc);
-			FileWriter writer = new FileWriter(kettleFile);
+			writer = new FileWriter(kettleFile);
 			StreamResult result = new StreamResult(writer);
 
 			TransformerFactory transformerFactory = TransformerFactory.newInstance();
 			Transformer transformer = transformerFactory.newTransformer();
 			transformer.transform(source, result);
-
+			
+			
+			
 			
 		} catch (FileNotFoundException e) {
 			log.error("Fichero no encontrado. " + msgError, e);
@@ -162,6 +168,16 @@ public class KettleUtils {
 			log.error("Error al crear Transformer. " + msgError, e);
 		} catch (TransformerException e) {
 			log.error("Error al crear el fichero final. " + msgError, e);
+		} 
+		finally {
+			if(writer != null) {
+				try {
+					writer.close();
+				} catch (IOException e) {
+					log.error("Error al cerrar la transmision de FileWriter", e);
+					e.printStackTrace();
+				}
+			}
 		}
 		
 		return kettleFile;

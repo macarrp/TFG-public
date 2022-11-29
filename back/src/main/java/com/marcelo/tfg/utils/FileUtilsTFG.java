@@ -25,8 +25,8 @@ public class FileUtilsTFG {
 	 * 
 	 * Devuelve null si no se puede hacer la conversion.
 	 * 
-	 * @param fileToConvert 
-	 * @param extension La extension del fichero
+	 * @param fileToConvert - El fichero a convertir
+	 * @param extension - La extension del fichero
 	 * 
 	 * @return File guardado en la carpeta temporal del sistema
 	 */
@@ -70,7 +70,7 @@ public class FileUtilsTFG {
 	/**
 	 * Elimina el fichero pasado como parametro.
 	 * 
-	 * @param file
+	 * @param file - El fichero a eliminar
 	 * 
 	 * @return true si se ha eliminado el fichero o si no existe. False si no se ha podido
 	 * borra todos los fichero
@@ -86,7 +86,7 @@ public class FileUtilsTFG {
 	/**
 	 * Elimina los ficheros pasados como parametros.
 	 * 
-	 * @param files
+	 * @param files - Los ficheros a eliminar
 	 * 
 	 * @return true si todos los ficheros se han eliminado o si la lista esta vacia. False si no se han podido
 	 * borrar todos los ficheros

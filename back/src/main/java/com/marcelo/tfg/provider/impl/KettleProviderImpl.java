@@ -18,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.marcelo.tfg.dto.KettleDto;
 import com.marcelo.tfg.provider.KettleProvider;
+import com.marcelo.tfg.utils.Constantes;
 import com.marcelo.tfg.utils.FileUtilsTFG;
 import com.marcelo.tfg.utils.KettleUtils;
 import com.marcelo.tfg.utils.enums.LogLevelKettle;
@@ -39,7 +40,7 @@ public class KettleProviderImpl implements KettleProvider {
 			return ktr;
 		}
 
-		File tempKettle = FileUtilsTFG.convertMultipartFileToTmpFile(kettleFile, "ktr");
+		File tempKettle = FileUtilsTFG.convertMultipartFileToTmpFile(kettleFile, Constantes.Extension.KTR);
 		if (tempKettle == null) {
 			ktr.setErrores(1);
 			ktr.setMensaje("Error al convertir el fichero");
@@ -64,7 +65,7 @@ public class KettleProviderImpl implements KettleProvider {
 			return ktr;
 		}
 
-		File tempKettle = FileUtilsTFG.convertMultipartFileToTmpFile(kettleFile, "ktr");
+		File tempKettle = FileUtilsTFG.convertMultipartFileToTmpFile(kettleFile, Constantes.Extension.KTR);
 		if (tempKettle == null) {
 			ktr.setErrores(1);
 			ktr.setMensaje("Error al convertir el fichero");
