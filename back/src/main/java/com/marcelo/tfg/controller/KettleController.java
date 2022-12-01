@@ -26,12 +26,13 @@ public class KettleController {
 
 	@Autowired
 	KettleProvider kettleProvider;
-
+	
 	@PostMapping(value = "/transformation", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public MessageResponseDto<KettleDto> runKettleTransformation(@RequestParam MultipartFile kettle,
+	public MessageResponseDto<KettleDto> runKettleTransformation(@RequestParam MultipartFile kettle, 
+			@RequestParam(required = false) List<MultipartFile> files,
 			@RequestParam(required = false) LogLevelKettle logLevelKettle) {
 		try {
-			KettleDto ktr = kettleProvider.executeTransformation(kettle, logLevelKettle);
+			KettleDto ktr = kettleProvider.executeTransformation(kettle, files, logLevelKettle);
 			return MessageResponseDto.success(ktr);
 		} catch (Exception e) {
 			log.error("Error al ejecutar la transformacion de Kettle", e);
@@ -39,29 +40,16 @@ public class KettleController {
 		}
 	}
 	
-	@PostMapping(value = "/transformation-with-attachments", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public MessageResponseDto<KettleDto> runKettleTransformationWithAttachments(@RequestParam MultipartFile kettle, 
-			@RequestParam List<MultipartFile> files,
-			@RequestParam(required = false) LogLevelKettle logLevelKettle) {
-		try {
-			KettleDto ktr = kettleProvider.executeTransformationWithAttachments(kettle, files, logLevelKettle);
-			return MessageResponseDto.success(ktr);
-		} catch (Exception e) {
-			log.error("Error al ejecutar la transformacion de Kettle", e);
-			return MessageResponseDto.fail("Error al ejecutar la transformacion de Kettle");
-		}
-	}
-	
-	@PostMapping(value = "/job", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public MessageResponseDto<KettleDto> runKettleJob(@RequestParam MultipartFile kettle) {
-		KettleDto ktr = null;
-		try {
-			ktr = kettleProvider.executeJob(kettle);
-			return MessageResponseDto.success(ktr);
-		} catch (Exception e) {
-			log.error("Error al ejecutar el trabajo de Kettle", e);
-			return MessageResponseDto.fail("Error al ejecutar el trabajo de Kettle");
-		}
-	}
+//	@PostMapping(value = "/job", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+//	public MessageResponseDto<KettleDto> runKettleJob(@RequestParam MultipartFile kettle) {
+//		KettleDto ktr = null;
+//		try {
+//			ktr = kettleProvider.executeJob(kettle);
+//			return MessageResponseDto.success(ktr);
+//		} catch (Exception e) {
+//			log.error("Error al ejecutar el trabajo de Kettle", e);
+//			return MessageResponseDto.fail("Error al ejecutar el trabajo de Kettle");
+//		}
+//	}
 
 }

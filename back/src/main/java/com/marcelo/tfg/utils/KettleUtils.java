@@ -2,7 +2,6 @@ package com.marcelo.tfg.utils;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,9 +13,7 @@ import java.util.stream.Stream;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
@@ -24,11 +21,11 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.pentaho.di.core.logging.KettleLogStore;
 import org.pentaho.di.core.logging.KettleLoggingEvent;
-import org.springframework.web.multipart.MultipartFile;
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -40,137 +37,83 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class KettleUtils {
-	
+
 	/**
-	 * Recoge los logs de Kettle incluyendo un salto de linea y 
-	 * los almacena en una String
+	 * Recoge los logs de Kettle incluyendo un salto de linea y los almacena en una
+	 * String
 	 * 
 	 * @param logChannelId - id del canal de Kettle
 	 * @return String - Los logs de la ejecucion
 	 */
 	public static String getKettleLogs(String logChannelId) {
-		List<KettleLoggingEvent> kle = KettleLogStore.
-				getLogBufferFromTo(logChannelId, true, 0, KettleLogStore.getLastBufferLineNr());
-		
+		List<KettleLoggingEvent> kle = KettleLogStore.getLogBufferFromTo(logChannelId, true, 0,
+				KettleLogStore.getLastBufferLineNr());
+
 		String logResult = "";
-		for(KettleLoggingEvent logEvent : kle) {
+		for (KettleLoggingEvent logEvent : kle) {
 			logResult += logEvent.getMessage() + " \n";
 		}
-	    KettleLogStore.discardLines(logChannelId, true);
-		
+		KettleLogStore.discardLines(logChannelId, true);
+
 		return logResult;
 	}
-	
+
 	/**
-	 * Verifica que el argumento pasado como parámetro tiene extensión ktr o kbj
+	 * Verifica que el argumento pasado como parámetro tiene la extensión correcta
 	 * 
 	 * @param kettleFile - Verifica la extension del fichero
-	 * @return true si es '.ktr' o 'kjb'. Falso en caso contrario
+	 * @return true si es ktr, kjb o xml. Falso en caso contrario
 	 */
-	public static Boolean checkExtensionKettle(MultipartFile kettleFile) {
-		String[] fileParts = kettleFile.getOriginalFilename().split("\\.");
-		String extension = fileParts[fileParts.length -1]; 
-		return Constantes.Extension.KTR.equals(extension) 
-				|| Constantes.Extension.KJB.equals(extension) 
+	public static Boolean checkExtensionKettle(File kettleFile) {
+		String[] fileParts = kettleFile.getName().split("\\.");
+		String extension = fileParts[fileParts.length - 1];
+		return Constantes.Extension.KTR.equals(extension) || Constantes.Extension.KJB.equals(extension)
 				|| Constantes.Extension.XML.equals(extension);
 	}
-	
+
 	/**
-	 * Modifica la ruta de los ficheros adjuntos de la transformación por la ruta temporal del sistema
+	 * Modifica la ruta de los ficheros adjuntos de la transformación por la ruta
+	 * temporal del sistema
 	 * 
-	 * @param kettleFile - La transformacion ktr
-	 * @param llevaAdjuntos - Booleano que controla si la transformacion lleva adjuntos
+	 * @param kettleFile    - La transformacion ktr
+	 * @param llevaAdjuntos - Booleano que controla si la transformacion lleva
+	 *                      adjuntos
 	 * 
 	 * @return File con la ruta interior modificada
 	 */
-	public static File modifyXmlTransformationPath(File kettleFile, boolean llevaAdjuntos) {
+	public static File modifyXmlTransformationPath(File kettleFile) {
 		String msgError = "El fichero no se ha modificado \n";
-		log.info("tam file: " + kettleFile.length() + " bytes");
+		log.info(kettleFile.getName() + " " + kettleFile.length() + " bytes");
 
-		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-		
 		FileWriter writer = null;
-		
-		try (InputStream is = new FileInputStream(kettleFile); /*FileWriter writer = new FileWriter(kettleFile)*/) {
+
+		try (InputStream is = new FileInputStream(kettleFile)) {
+			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 			DocumentBuilder db = dbf.newDocumentBuilder();
 			Document doc = db.parse(is);
 
-			NodeList listOfNodeFiles = doc.getElementsByTagName("file");
+			NodeList rootChildrenNodes = doc.getChildNodes();
 
-			for (int i = 0; i < listOfNodeFiles.getLength(); i++) {
-				Node nodeFile = listOfNodeFiles.item(i);
-				if (nodeFile.getNodeType() == Node.ELEMENT_NODE) {
-					NodeList files = nodeFile.getChildNodes();
-					for (int j = 0; j < files.getLength(); j++) {
-						Node name = files.item(j);
-						if (name.getNodeType() == Node.ELEMENT_NODE) {
-							if ("name".equalsIgnoreCase(name.getNodeName())) {
-								log.info("Ruta encontrada DENTRO del ktr: " + name.getTextContent());
-								
-								File filepath = new File(name.getTextContent());
-								String[] nombreNodoSplit = filepath.getName().split("\\.");
-								String nombreDentroNodo = nombreNodoSplit[0];
-								
-								// Cambiamos la ruta del fichero para que apunte a la ruta temporal
-								if(llevaAdjuntos) {
-									List<Path> possiblePaths = findByFilenameStartsWith(new File(Constantes.tmpDir).toPath(), "kettle_");
-									for (Path path : possiblePaths) {
-										File pathKetleFile = new File(path.toString());
-										String pathKettleFilename = pathKetleFile.getName();
-										String pathFilename = pathKettleFilename.split("kettle_")[1];
-										
-										// Si no tiene extension, es un fichero de salida
-										// Es decir, el array tiene tam 1
-										if(nombreNodoSplit.length <= 1) {
-											name.setTextContent(Constantes.tmpDir + nombreNodoSplit[0]);
-											continue;
-										}
-										
-										if(pathFilename.startsWith(nombreDentroNodo)) {
-											log.info("fichero encontrado, asignando..." + Constantes.tmpDir + pathKettleFilename);
-											name.setTextContent(Constantes.tmpDir + pathKettleFilename);
-										}
-									}
-								}
-								else {
-									File nuevaRuta = new File(Constantes.tmpDir + nombreDentroNodo);
-									name.setTextContent(nuevaRuta.getCanonicalPath());
-								}
-								
-								log.info("Ruta nueva DENTRO del ktr: " + name.getTextContent());
-							}
-						}
-					}
+			for (int i = 0; i < rootChildrenNodes.getLength(); i++) {
+				Node rootNode = rootChildrenNodes.item(i);
+				if (rootNode.getNodeType() == Node.ELEMENT_NODE) {
+					Element rootElement = (Element) rootChildrenNodes.item(i);
+					
+					NodeList fileNodeList = rootElement.getElementsByTagName("file");
+					NodeList filenameNodeList = rootElement.getElementsByTagName("filename");
+
+					convertNameTags(fileNodeList);
+					convertFilenameTags(filenameNodeList);
+
+					log.debug("debug");
 				}
 			}
+			writeDocument(doc, kettleFile, writer);
 
-			// write the content into xml file
-			DOMSource source = new DOMSource(doc);
-			writer = new FileWriter(kettleFile);
-			StreamResult result = new StreamResult(writer);
-
-			TransformerFactory transformerFactory = TransformerFactory.newInstance();
-			Transformer transformer = transformerFactory.newTransformer();
-			transformer.transform(source, result);
-			
-			
-			
-			
-		} catch (FileNotFoundException e) {
-			log.error("Fichero no encontrado. " + msgError, e);
-		} catch (IOException e) {
-			log.error("Error de InputStream. " + msgError, e);
-		} catch (ParserConfigurationException e) {
-			log.error("Error al crear DocumentBuilder. " + msgError, e);
-		} catch (SAXException e) {
-			log.error("Error al crear Document. " + msgError, e);
-		} catch (TransformerConfigurationException e) {
-			log.error("Error al crear Transformer. " + msgError, e);
-		} catch (TransformerException e) {
-			log.error("Error al crear el fichero final. " + msgError, e);
-		} 
-		finally {
-			if(writer != null) {
+		} catch (Exception e) {
+			log.error("ERROR: " + msgError, e);
+		} finally {
+			if (writer != null) {
 				try {
 					writer.close();
 				} catch (IOException e) {
@@ -179,22 +122,104 @@ public class KettleUtils {
 				}
 			}
 		}
-		
+
 		return kettleFile;
 	}
 	
-	private static List<Path> findByFilenameStartsWith(Path path, String filename)
-            throws IOException {
+	private static void convertNameTags(NodeList fileNodeList) throws IOException {
+		int tam = fileNodeList.getLength();
+		for (int j = 0; j < tam; j++) {
+			Node fileNode = fileNodeList.item(j);
+			if (fileNode != null && fileNode.getNodeType() == Node.ELEMENT_NODE) {
+				Element fileElement = (Element) fileNodeList.item(j);
+				NodeList nameNodeList = fileElement.getElementsByTagName("name");
 
-        List<Path> result;
-        try (Stream<Path> pathStream = Files.find(path,
-                Integer.MAX_VALUE,
-                (p, basicFileAttributes) ->
-                        p.getFileName().toString().startsWith(filename))
-        ) {
-            result = pathStream.collect(Collectors.toList());
-        }
-        return result;
+				searchNode("name", nameNodeList);
+			}
+		}
+	}
+	
+	private static void convertFilenameTags(NodeList filenameNodeList) throws IOException {
+		searchNode("filename", filenameNodeList);
+	}
+	
+	private static void searchNode(String searchNodeName, NodeList nodeList) throws DOMException, IOException {
+		int tam = nodeList.getLength();
+		for (int z = 0; z < tam; z++) {
+			Node nameNode = nodeList.item(z);
+			if (nameNode.getNodeType() == Node.ELEMENT_NODE) {
+				Element nameElement = (Element) nodeList.item(z);
+				if (searchNodeName.equalsIgnoreCase(nameElement.getTagName())) {
+					tagFound(nameElement);
+				}
+			}
+		}
+	}
+	
+	private static void tagFound(Element element) throws DOMException, IOException {
+		File filepath = new File(element.getTextContent());
+		String fileName = FileUtilsTFG.getFileName(filepath);
+		String fileExtension = FileUtilsTFG.getFileExtension(filepath); // Si es null, se trata de un fichero de salida
 
-    }
+		if("template".equalsIgnoreCase(fileName)) { // Caso particular
+			return;
+		}
+		
+		log.info("Ruta VIEJA encontrada dentro de la transformacion: " + filepath);
+
+		// Cambiamos la ruta del fichero para que apunte a la ruta temporal
+		List<Path> possiblePaths = findByFilenameStartsWith(new File(Constantes.TMP_DIR).toPath(), Constantes.KETTLE_PREFIX);
+		convertPathToTempFiles(possiblePaths, element, fileName, fileExtension);
+		
+//		if (llevaAdjuntos) {
+//			List<Path> possiblePaths = findByFilenameStartsWith(new File(Constantes.TMP_DIR).toPath(), Constantes.KETTLE_PREFIX);
+//			convertPathToTempFiles(possiblePaths, element, fileName, fileExtension);
+//		} else {
+//			File nuevaRuta = new File(Constantes.TMP_DIR + filepath.getName());
+//			element.setTextContent(nuevaRuta.getCanonicalPath());
+//		}
+
+		log.info("Ruta NUEVA dentro del ktr: " + element.getTextContent());
+	}
+
+	private static List<Path> findByFilenameStartsWith(Path path, String filename) throws IOException {
+
+		List<Path> result;
+		try (Stream<Path> pathStream = Files.find(path, Integer.MAX_VALUE,
+				(p, basicFileAttributes) -> p.getFileName().toString().startsWith(filename))) {
+			result = pathStream.collect(Collectors.toList());
+		}
+		return result;
+
+	}
+
+	private static void convertPathToTempFiles(List<Path> possiblePaths, Element name, String nombreFichDentroNodo,
+			String fileExtension) {
+		for (Path path : possiblePaths) {
+			File pathKettleFile = new File(path.toString());
+			String pathKettleFilename = FileUtilsTFG.getFileName(pathKettleFile);
+			
+			String pathFilename = pathKettleFilename.split(Constantes.KETTLE_PREFIX)[1];
+
+			if (fileExtension == null) {
+				name.setTextContent(Constantes.TMP_DIR + nombreFichDentroNodo);
+				continue;
+			}
+
+			if (pathFilename.startsWith(nombreFichDentroNodo)) {
+				name.setTextContent(Constantes.TMP_DIR + pathKettleFilename + "." + fileExtension);
+			}
+		}
+	}
+
+	private static void writeDocument(Document doc, File kettleFile, FileWriter writer)
+			throws IOException, TransformerException {
+		DOMSource source = new DOMSource(doc);
+		writer = new FileWriter(kettleFile);
+		StreamResult result = new StreamResult(writer);
+
+		TransformerFactory transformerFactory = TransformerFactory.newInstance();
+		Transformer transformer = transformerFactory.newTransformer();
+		transformer.transform(source, result);
+	}
 }

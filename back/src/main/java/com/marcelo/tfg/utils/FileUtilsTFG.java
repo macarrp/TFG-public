@@ -37,14 +37,11 @@ public class FileUtilsTFG {
 		File temp = null;
 		FileOutputStream fos = null;
 		try {
-			log.info("Creando fichero temporal...");
-			String nombreCompletoArchivo = fileToConvert.getOriginalFilename();
-			String nombre = nombreCompletoArchivo.split("\\.")[0];
+			log.info("Creando fichero temporal para " + fileToConvert.getOriginalFilename());
+			String nombre = getFileName(fileToConvert);
 
 			// Parameter 3 - Default tmp directory of the system
-			temp = File.createTempFile("kettle_" + nombre, "." + extension, null);
-
-			log.info("Fichero temporal creado con exito, volcando bytes...");
+			temp = File.createTempFile(Constantes.KETTLE_PREFIX + nombre, "." + extension, null);
 
 			fos = new FileOutputStream(temp);
 			fos.write(fileToConvert.getBytes());
@@ -63,7 +60,7 @@ public class FileUtilsTFG {
 			}
 		}
 
-		log.info("Tam del fichero: " + temp.length() + " bytes");
+		log.info("Tam del fichero convertido: " + temp.length() + " bytes");
 		return temp;
 	}
 
@@ -88,12 +85,11 @@ public class FileUtilsTFG {
 	 * 
 	 * @param files - Los ficheros a eliminar
 	 * 
-	 * @return true si todos los ficheros se han eliminado o si la lista esta vacia. False si no se han podido
-	 * borrar todos los ficheros
+	 * @return El numero de ficheros eliminados
 	 */
-	public static boolean deleteMultipleFiles(List<File> files) {
+	public static int deleteMultipleFiles(List<File> files) {
 		if (files == null)
-			return true;
+			return 0;
 
 		int filesDeleted = 0;
 		for (File file : files) {
@@ -105,6 +101,26 @@ public class FileUtilsTFG {
 			filesDeleted++;
 		}
 
-		return filesDeleted == files.size();
+		return filesDeleted;
+	}
+	
+	public static String getFileName(File file) {
+		String[] fileSplit = file.getName().split("\\.");
+		return fileSplit.length > 0 ? fileSplit[0] : null;
+	}
+	
+	public static String getFileName(MultipartFile file) {
+		String[] fileSplit = file.getOriginalFilename().split("\\.");
+		return fileSplit.length > 0 ? fileSplit[0] : null;
+	}
+
+	public static String getFileExtension(File file) {
+		String[] fileSplit = file.getName().split("\\.");
+		return fileSplit.length > 1 ? fileSplit[fileSplit.length-1] : null;
+	}
+	
+	public static String getFileExtension(MultipartFile file) {		
+		String[] fileSplit = file.getOriginalFilename().split("\\.");
+		return fileSplit.length > 1 ? fileSplit[fileSplit.length-1] : null;
 	}
 }

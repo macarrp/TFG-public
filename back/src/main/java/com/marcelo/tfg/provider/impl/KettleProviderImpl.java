@@ -4,295 +4,138 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.core.logging.LogLevel;
-import org.pentaho.di.core.plugins.PluginFolder;
-import org.pentaho.di.core.plugins.StepPluginType;
-import org.pentaho.di.job.Job;
-import org.pentaho.di.job.JobMeta;
-import org.pentaho.di.trans.Trans;
-import org.pentaho.di.trans.TransMeta;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.marcelo.tfg.dto.KettleDto;
+import com.marcelo.tfg.provider.KettleBaseProvider;
 import com.marcelo.tfg.provider.KettleProvider;
 import com.marcelo.tfg.utils.Constantes;
 import com.marcelo.tfg.utils.FileUtilsTFG;
 import com.marcelo.tfg.utils.KettleUtils;
 import com.marcelo.tfg.utils.enums.LogLevelKettle;
 
-import lombok.extern.slf4j.Slf4j;
-
 @Component
-@Slf4j
-public class KettleProviderImpl implements KettleProvider {
-	
-	@Override
-	public KettleDto executeTransformation(MultipartFile kettleFile, LogLevelKettle logLevelKettle) {
-		Boolean isKettleFile = KettleUtils.checkExtensionKettle(kettleFile);
-
-		KettleDto ktr = new KettleDto();
-		if (!isKettleFile) {
-			ktr.setErrores(1);
-			ktr.setMensaje("El fichero no tiene la extensión apropiada");
-			return ktr;
-		}
-
-		File tempKettle = FileUtilsTFG.convertMultipartFileToTmpFile(kettleFile, Constantes.Extension.KTR);
-		if (tempKettle == null) {
-			ktr.setErrores(1);
-			ktr.setMensaje("Error al convertir el fichero");
-			return ktr;
-		}
-		tempKettle = KettleUtils.modifyXmlTransformationPath(tempKettle, false);
-
-		execute(tempKettle, logLevelKettle, ktr, null);
-
-		return ktr;
-	}
+public class KettleProviderImpl extends KettleBaseProvider implements KettleProvider {
 
 	@Override
-	public KettleDto executeTransformationWithAttachments(MultipartFile kettleFile, List<MultipartFile> files,
+	public KettleDto executeTransformation(MultipartFile kettleFile, List<MultipartFile> adjuntosMultipart,
 			LogLevelKettle logLevel) {
-		Boolean isKettleFile = KettleUtils.checkExtensionKettle(kettleFile);
-
 		KettleDto ktr = new KettleDto();
-		if (!isKettleFile) {
-			ktr.setErrores(1);
-			ktr.setMensaje("El fichero no tiene la extensión apropiada");
+
+		File tempKettleFile = FileUtilsTFG.convertMultipartFileToTmpFile(kettleFile, Constantes.Extension.KTR);
+
+		if (!checkConversion(tempKettleFile, ktr))
 			return ktr;
-		}
 
-		File tempKettle = FileUtilsTFG.convertMultipartFileToTmpFile(kettleFile, Constantes.Extension.KTR);
-		if (tempKettle == null) {
-			ktr.setErrores(1);
-			ktr.setMensaje("Error al convertir el fichero");
+		if (!checkExtension(tempKettleFile, ktr))
 			return ktr;
-		}
 
-		List<File> tempKettleFiles = new ArrayList<>();
-		for (MultipartFile file : files) {
-			String nombreCompletoArchivo = file.getOriginalFilename();
-			String extension = nombreCompletoArchivo.split("\\.")[1];
-			tempKettleFiles.add(FileUtilsTFG.convertMultipartFileToTmpFile(file, extension));
-		}
-
-		tempKettle = KettleUtils.modifyXmlTransformationPath(tempKettle, true);
-		log.info("tam " + tempKettle.length() + " bytes");
-
-		execute(tempKettle, logLevel, ktr, tempKettleFiles);
-
-		return ktr;
-	}
-
-	@Override
-	public KettleDto executeTransformation(File kettleFile, LogLevelKettle logLevelKettle) {
-		return null;
-	}
-
-	@Override
-	public KettleDto executeKettleTransformationWithAttachments(File kettleFile, List<File> files,
-			LogLevelKettle logLevel) {
-		return null;
-
-	}
-
-	
-	@Override
-	public KettleDto executeJob(MultipartFile kettleFile) {
-		File temp = FileUtilsTFG.convertMultipartFileToTmpFile(kettleFile, "kjb");
-
-		KettleDto kjb = new KettleDto();
-
-		if (temp == null) {
-			kjb.setErrores(-1);
-			kjb.setMensaje("Error al convertir el fichero");
-			return kjb;
-		}
-
-//		public static void executeJob(String filename, Map<String,String> parameters, String[] arguments) 
-//		        throws KettleXMLException, KettleException{
-
-		try {
-			KettleInit();
-
-			JobMeta jobMeta = new JobMeta(temp.getPath(), null);
-
-//			log.info("Recogiendo parametros del job...");
-//		    if(parameters != null){
-//		        for(String key : parameters.keySet()){
-//		            try {
-//		                jobMeta.setParameterValue(key, parameters.get(key));
-//		            } catch (UnknownParamException ex) {
-//		                log.error("Error asignando parametros del job de kettle", ex);
-//		            }
-//		        }
-//		    }
-
-			Job job = new Job(null, jobMeta);
-
-//			log.info("Asignando parametros...");
-//		    if(arguments != null && arguments.length> 0 )
-//		        job.setArguments(arguments);
-
-			String logChannelId = job.getLogChannelId();
-
-			job.start();
-			job.waitUntilFinished();
-
-			kjb.setErrores(job.getErrors());
-
-			log.info("Trabajo ejecutado, recogiendo logs...");
-			kjb.setLog(KettleUtils.getKettleLogs(logChannelId));
-
-			if (kjb.getErrores() == 0)
-				kjb.setMensaje("Trabajo realizada con éxito");
-			else
-				kjb.setMensaje("Han habido errores durante el trabajo");
-
-			log.info("Logs recogidos, finalizando procesos...");
-			KettleEnvironment.shutdown();
-		} catch (KettleException e) {
-			kjb.setErrores(kjb.getErrores() + 1);
-			kjb.setMensaje("Error al ejecutar el trabajo de Kettle");
-			log.error(kjb.getMensaje(), e);
-		} finally {
-			boolean eliminado = FileUtilsTFG.deleteFile(temp);
-			log.info("Fichero eliminado: " + eliminado);
-		}
-
-		return kjb;
-	}
-
-	/*-------------------------------------------------------------------------*/
-	// TODO: KettleBaseProvider¿?
-
-	/**
-	 * Wrapper para inicializar el entorno de Kettle
-	 * 
-	 * @throws KettleException
-	 */
-	private void KettleInit() throws KettleException {
-		addPlugins();
+		List<File> adjuntosFile = null;
+		boolean tieneAdjuntos = false;
 		
-		// WARNING: Tiene que ser false! Si no, el despliegue falla
-		if (!KettleEnvironment.isInitialized()) {
-			log.info("Inicializando KettleEnvironment");
-			KettleEnvironment.init(false);
+		if (adjuntosMultipart != null && adjuntosMultipart.size() > 0) {
+			adjuntosFile = new ArrayList<>();
+			convertAndAddToFileList(adjuntosFile, adjuntosMultipart);
+			tieneAdjuntos = true;
 		}
-		log.info("KettleEnvironment inicializado : " + KettleEnvironment.isInitialized());
+
+		executeKettleFile(tempKettleFile, adjuntosFile, tieneAdjuntos, logLevel, ktr);
+
+		return ktr;
 	}
 
-	private void addPlugins() { // TODO: Hacerlo relativo y dentro del modulo
-		// JSON input/output
-		StepPluginType.getInstance().getPluginFolders().add(new PluginFolder(
-				"C:/Users\\mcarro\\Downloads\\TFG_assets\\data-integration\\plugins\\kettle-json-plugin", false, true));
+	@Override
+	public KettleDto executeTransformation(File kettleFile, List<File> adjuntos, LogLevelKettle logLevel) {
+		KettleDto ktr = new KettleDto();
 
-		// Get data from XML
-		StepPluginType.getInstance().getPluginFolders().add(new PluginFolder(
-				"C:/Users\\mcarro\\Downloads\\TFG_assets\\data-integration\\plugins\\pdi-xml-plugin", false, true));
+		if (!checkExtension(kettleFile, ktr))
+			return ktr;
+
+		boolean tieneAdjuntos = false;
+
+		if (adjuntos != null && adjuntos.size() > 0)
+			tieneAdjuntos = true;
+
+		executeKettleFile(kettleFile, adjuntos, tieneAdjuntos, logLevel, ktr);
+		
+		return ktr;
 	}
-
-	/**
-	 * Setea el nivel de logs de Kettle
-	 * 
-	 * @param logLevelKettle
-	 * @param trans
-	 */
-	private void setLogLevel(LogLevelKettle logLevelKettle, Trans trans) {
-		if (logLevelKettle != null) {
-			log.info("LogLevel detectado: " + logLevelKettle);
-			trans.setLogLevel(logLevelKettle.getLogLevelKettle());
-		} else {
-			log.info("LogLevel no detectado, asignando a BASIC");
-			trans.setLogLevel(LogLevel.BASIC);
-		}
-	}
-
-	/**
-	 * Setea el mensaje de Kettle segun el numero de errores
-	 * 
-	 * @param ktr
-	 */
-	private void setKettleErrorMsg(KettleDto ktr) {
-		if (ktr.getErrores() == 0)
-			ktr.setMensaje("Transformación realizada con éxito");
-		else
-			ktr.setMensaje("Han habido errores durante la transformación");
-	}
-
-	private void execute(File tempKettle, LogLevelKettle logLevelKettle, KettleDto ktrDto, List<File> adjuntos) {
-		String logChannelId = null;
+	
+	public void executeKettleFile(File kettleFile, List<File> adjuntos, boolean tieneAdjuntos, LogLevelKettle logLevel, KettleDto ktr) {
 		try {
-			KettleInit();
+			kettleFile = KettleUtils.modifyXmlTransformationPath(kettleFile, tieneAdjuntos);
 
-			Trans trans = new Trans(new TransMeta(tempKettle.getPath()));
-			logChannelId = trans.getLogChannelId();
-
-			setLogLevel(logLevelKettle, trans);
-
-			executeTrans(trans, logChannelId, ktrDto);
-
-			log.info("Ejecucion finalizada");
-			KettleEnvironment.shutdown();
-		} catch (KettleException e) {
-			if (logChannelId != null)
-				ktrDto.setLog(KettleUtils.getKettleLogs(logChannelId));
-
-			ktrDto.setErrores(ktrDto.getErrores() + 1);
-			ktrDto.setMensaje("Error al ejecutar la transformación de Kettle");
-			log.error(ktrDto.getMensaje(), e);
+			execute(kettleFile, adjuntos, logLevel, ktr);
 		} finally {
-			log.info("Kettle shutdown? " + KettleEnvironment.isInitialized());
-			eliminaFicheroKtr(tempKettle);
+			eliminaFichero(kettleFile);
 			eliminaAdjuntosKtr(adjuntos);
 		}
 	}
-	
-	/**
-	 * Ejecuta la transformacion de Kettle
-	 * 
-	 * @param trans
-	 * @param logChannelId
-	 * @param ktr
-	 * @throws KettleException
-	 */
-	private void executeTrans(Trans trans, String logChannelId, KettleDto ktr) throws KettleException {
-		log.info("Ejecutando transformacion...");
-		trans.execute(null); // trans.execute(new String[]{});
-		trans.waitUntilFinished();
 
-		log.info("Transformacion ejecutada, recogiendo logs...");
-		ktr.setLog(KettleUtils.getKettleLogs(logChannelId));
-		log.info("Logs recogidos...");
-		
-		ktr.setErrores(trans.getErrors());
-		setKettleErrorMsg(ktr);
-	}
+//	@Override
+//	public KettleDto executeJob(MultipartFile kettleFile) {
+//		KettleDto kjb = new KettleDto();
 
-	/**
-	 * Elimina el fichero del sistema
-	 * 
-	 * @param ktr
-	 * @return true si el fichero se ha eliminado, false en caso contrario
-	 */
-	private boolean eliminaFicheroKtr(File ktr) {
-		boolean eliminado = FileUtilsTFG.deleteFile(ktr);
-		log.info("Fichero eliminado: " + eliminado);
-		return eliminado;
-	}
+//		File tempKettleFile = FileUtilsTFG.convertMultipartFileToTmpFile(kettleFile, Constantes.Extension.KJB);
+//
+//		if(!checkConversion(tempKettleFile, kjb))
+//			return kjb;
+//
+////		public static void executeJob(String filename, Map<String,String> parameters, String[] arguments) 
+////		        throws KettleXMLException, KettleException{
+//		String logChannelId = null;
+//		try {
+//			KettleInit();
+//
+//			JobMeta jobMeta = new JobMeta(tempKettleFile.getPath(), null);
+//
+////			log.info("Recogiendo parametros del job...");
+////		    if(parameters != null){
+////		        for(String key : parameters.keySet()){
+////		            try {
+////		                jobMeta.setParameterValue(key, parameters.get(key));
+////		            } catch (UnknownParamException ex) {
+////		                log.error("Error asignando parametros del job de kettle", ex);
+////		            }
+////		        }
+////		    }
+//
+//			Job job = new Job(null, jobMeta);
+//
+////			log.info("Asignando parametros...");
+////		    if(arguments != null && arguments.length> 0 )
+////		        job.setArguments(arguments);
+//
+//			logChannelId = job.getLogChannelId();
+//
+//			job.start();
+//			job.waitUntilFinished();
+//
+//			kjb.setErrores(job.getErrors());
+//
+//			log.info("Trabajo ejecutado, recogiendo logs...");
+//			kjb.setLog(KettleUtils.getKettleLogs(logChannelId));
+//
+//			if (kjb.getErrores() == 0)
+//				kjb.setMensaje("Trabajo realizada con éxito");
+//			else
+//				kjb.setMensaje("Han habido errores durante el trabajo");
+//
+//			log.info("Logs recogidos, finalizando procesos...");
+//			KettleEnvironment.shutdown();
+//		} catch (KettleException e) {
+////			if (logChannelId != null)
+////				kjb.setLog(KettleUtils.getKettleLogs(logChannelId));
+//			
+//			kjb.setErrores(kjb.getErrores() + 1);
+//			kjb.setMensaje("Error al ejecutar el trabajo de Kettle");
+//			log.error(kjb.getMensaje(), e);
+//		} finally {
+//			eliminaFichero(tempKettleFile);
+//		}
 
-	/**
-	 * Elimina los ficheros del sistema
-	 * 
-	 * @param adjuntos
-	 * @return true si todos los ficheros se han eliminado, false en caso contrario
-	 */
-	private boolean eliminaAdjuntosKtr(List<File> adjuntos) {
-		boolean adjuntosEliminados = FileUtilsTFG.deleteMultipleFiles(adjuntos);
-		log.info(adjuntos.size() + " ficheros adjuntos eliminados: " + adjuntosEliminados);
-		return adjuntosEliminados;
-	}
+//		return kjb;
+//	}
+
 }
