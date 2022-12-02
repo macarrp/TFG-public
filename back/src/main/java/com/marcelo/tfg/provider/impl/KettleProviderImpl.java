@@ -10,7 +10,6 @@ import org.springframework.web.multipart.MultipartFile;
 import com.marcelo.tfg.dto.KettleDto;
 import com.marcelo.tfg.provider.KettleBaseProvider;
 import com.marcelo.tfg.provider.KettleProvider;
-import com.marcelo.tfg.utils.Constantes;
 import com.marcelo.tfg.utils.FileUtilsTFG;
 import com.marcelo.tfg.utils.KettleUtils;
 import com.marcelo.tfg.utils.enums.LogLevelKettle;
@@ -23,12 +22,12 @@ public class KettleProviderImpl extends KettleBaseProvider implements KettleProv
 			LogLevelKettle logLevel) {
 		KettleDto ktr = new KettleDto();
 
-		File tempKettleFile = FileUtilsTFG.convertMultipartFileToTmpFile(kettleFile, Constantes.Extension.KTR);
-
-		if (!checkConversion(tempKettleFile, ktr))
+		if (!checkExtension(kettleFile, ktr))
 			return ktr;
 
-		if (!checkExtension(tempKettleFile, ktr))
+		File tempKettleFile = FileUtilsTFG.convertMultipartFileToTmpFile(kettleFile);
+		
+		if (!checkConversion(tempKettleFile, ktr))
 			return ktr;
 
 		List<File> adjuntosFile = null;

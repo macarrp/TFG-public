@@ -30,7 +30,7 @@ public class FileUtilsTFG {
 	 * 
 	 * @return File guardado en la carpeta temporal del sistema
 	 */
-	public static File convertMultipartFileToTmpFile(MultipartFile fileToConvert, String extension) {
+	public static File convertMultipartFileToTmpFile(MultipartFile fileToConvert) {
 		if (fileToConvert == null)
 			return null;
 
@@ -38,6 +38,7 @@ public class FileUtilsTFG {
 		FileOutputStream fos = null;
 		try {
 			String nombre = getFileName(fileToConvert);
+			String extension = FileUtilsTFG.getFileExtension(fileToConvert);
 
 			// Parameter 3 - Default tmp directory of the system
 			temp = File.createTempFile(Constantes.KETTLE_PREFIX + nombre, "." + extension, null);

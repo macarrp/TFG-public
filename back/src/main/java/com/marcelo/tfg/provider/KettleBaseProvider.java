@@ -27,8 +27,8 @@ public class KettleBaseProvider {
 	 * Verifica que la conversion se haya realizado correctamente. En caso fallido,
 	 * setea el error en el dto
 	 * 
-	 * @param kettleFile
-	 * @param kettleDto
+	 * @param kettleFile - El fichero Kettle
+	 * @param kettleDto - dto
 	 * @return Cierto si el fichero se ha convertido correctamente. 
 	 * Falso en caso contrario
 	 */
@@ -36,6 +36,7 @@ public class KettleBaseProvider {
 		if (kettleFile == null) {
 			kettleDto.setErrores(1);
 			kettleDto.setMensaje("Error al convertir el fichero");
+			eliminaFichero(kettleFile);
 		}
 		return kettleFile != null;
 	}
@@ -44,8 +45,25 @@ public class KettleBaseProvider {
 	 * Verifica la extension del archivo. En caso erroneo, setea el error en el dto.
 	 * <br>Las extensions admitidas son ktr, kjb y xml
 	 * 
-	 * @param kettleFile
-	 * @param kettleDto
+	 * @param kettleFile - El fichero Kettle
+	 * @param kettleDto - dto
+	 * @return Cierto si el fichero tiene la extension apropiada
+	 */
+	protected boolean checkExtension(MultipartFile kettleFile, KettleDto kettleDto) {
+		Boolean isKettleFile = KettleUtils.checkExtensionKettle(kettleFile);
+		if (!isKettleFile) {
+			kettleDto.setErrores(1);
+			kettleDto.setMensaje("El fichero no tiene la extensión apropiada");
+		}
+		return isKettleFile;
+	}
+	
+	/**
+	 * Verifica la extension del archivo. En caso erroneo, setea el error en el dto.
+	 * <br>Las extensions admitidas son ktr, kjb y xml
+	 * 
+	 * @param kettleFile - El fichero Kettle
+	 * @param kettleDto - dto
 	 * @return Cierto si el fichero tiene la extension apropiada
 	 */
 	protected boolean checkExtension(File kettleFile, KettleDto kettleDto) {
@@ -57,13 +75,17 @@ public class KettleBaseProvider {
 		return isKettleFile;
 	}
 	
+	/**
+	 * Añade a fileList los adjuntos pasados como parametro a la ruta temporal del sistema
+	 * 
+	 * @param fileList - La lista a la que se añaden
+	 * @param adjuntos - Los ficheros a convertir
+	 */
 	protected void convertAndAddToFileList(List<File> fileList, List<MultipartFile> adjuntos) {
 		for (MultipartFile adj : adjuntos) {
-			String extension = FileUtilsTFG.getFileExtension(adj);
-			fileList.add(FileUtilsTFG.convertMultipartFileToTmpFile(adj, extension));
+			fileList.add(FileUtilsTFG.convertMultipartFileToTmpFile(adj));
 		}
 	}
-	
 	
 	
 	/**
@@ -105,7 +127,14 @@ public class KettleBaseProvider {
 	}
 
 	
-	
+	/**
+	 * Ejecuta Kettle
+	 * 
+	 * @param tempKettle - El fichero Kettle
+	 * @param adjuntos - Los adjuntos de la transformacion
+	 * @param logLevelKettle - Nivel de logs
+	 * @param ktrDto - dto
+	 */
 	protected void execute(File tempKettle, List<File> adjuntos, LogLevelKettle logLevelKettle, KettleDto ktrDto) {
 		String logChannelId = null;
 		try {

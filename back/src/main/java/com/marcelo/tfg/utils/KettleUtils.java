@@ -22,6 +22,7 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.pentaho.di.core.logging.KettleLogStore;
 import org.pentaho.di.core.logging.KettleLoggingEvent;
+import org.springframework.web.multipart.MultipartFile;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -57,6 +58,19 @@ public class KettleUtils {
 		KettleLogStore.discardLines(logChannelId, true);
 
 		return logResult;
+	}
+	
+	/**
+	 * Verifica que el argumento pasado como parámetro tiene la extensión correcta
+	 * 
+	 * @param kettleFile - Verifica la extension del fichero
+	 * @return true si es ktr, kjb o xml. Falso en caso contrario
+	 */
+	public static Boolean checkExtensionKettle(MultipartFile kettleFile) {
+		String[] fileParts = kettleFile.getOriginalFilename().split("\\.");
+		String extension = fileParts[fileParts.length - 1];
+		return Constantes.Extension.KTR.equals(extension) || Constantes.Extension.KJB.equals(extension)
+				|| Constantes.Extension.XML.equals(extension);
 	}
 
 	/**
