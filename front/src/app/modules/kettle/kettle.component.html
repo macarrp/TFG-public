@@ -1,5 +1,11 @@
 <section>
-    <div class="container center-div">
+    <div *ngIf="loading" class="d-flex justify-content-center align-items-center">
+        <div class="spinner-border" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    
+      <div class="container center-div">
         <div>
             <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show">
                 <strong>¡Éxito! </strong> {{ successMessage }}
@@ -41,16 +47,6 @@
                 <option [ngValue]="true">Si</option>
             </select>
         </div>
-        <!-- <div class="mb-3" *ngIf="llevaAdjuntos">
-            <label for="origen_datos">Origen de datos *</label>
-            <select [(ngModel)]="origenDatosSelected" class="form-select tam-select" id="origen_datos"
-                aria-label="Origen de datos">
-                <option [ngValue]="null"></option>
-                <option *ngFor="let origen of origenDatos" [value]="origen">
-                    {{ origen }}
-                </option>
-            </select>
-        </div> -->
 
         <div class="mb-3" *ngIf="llevaAdjuntos">
             <label for="adjuntos">Adjuntos *</label>
