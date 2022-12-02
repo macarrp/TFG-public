@@ -1,4 +1,4 @@
-package com.marcelo.tfg.provider;
+package com.marcelo.tfg.provider.impl;
 
 import java.io.File;
 import java.util.List;
@@ -21,7 +21,7 @@ import com.marcelo.tfg.utils.enums.LogLevelKettle;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class KettleBaseProvider {
+public class KettleBaseProviderImpl {
 
 	/**
 	 * Verifica que la conversion se haya realizado correctamente. En caso fallido,

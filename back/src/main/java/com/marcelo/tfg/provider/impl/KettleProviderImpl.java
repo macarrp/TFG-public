@@ -8,14 +8,13 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.marcelo.tfg.dto.KettleDto;
-import com.marcelo.tfg.provider.KettleBaseProvider;
 import com.marcelo.tfg.provider.KettleProvider;
 import com.marcelo.tfg.utils.FileUtilsTFG;
 import com.marcelo.tfg.utils.KettleUtils;
 import com.marcelo.tfg.utils.enums.LogLevelKettle;
 
 @Component
-public class KettleProviderImpl extends KettleBaseProvider implements KettleProvider {
+public class KettleProviderImpl extends KettleBaseProviderImpl implements KettleProvider {
 
 	@Override
 	public KettleDto executeTransformation(MultipartFile kettleFile, List<MultipartFile> adjuntosMultipart,

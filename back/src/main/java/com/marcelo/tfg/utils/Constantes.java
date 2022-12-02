@@ -16,7 +16,6 @@ public class Constantes {
 		public static final String XML = "xml";
 	}
 	
+//	public static final String PLUGINS_FOLDER = "src/main/resources/kettle_plugins";
 	public static final String PLUGINS_FOLDER = "kettle_plugins";
-	
-	
 }
