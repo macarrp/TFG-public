@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -83,7 +84,6 @@ public class KettleUtils {
 	 */
 	public static File modifyXmlTransformationPath(File kettleFile) {
 		String msgError = "El fichero no se ha modificado \n";
-		log.info(kettleFile.getName() + " " + kettleFile.length() + " bytes");
 
 		FileWriter writer = null;
 
@@ -94,90 +94,73 @@ public class KettleUtils {
 
 			NodeList rootChildrenNodes = doc.getChildNodes();
 
-			for (int i = 0; i < rootChildrenNodes.getLength(); i++) {
-				Node rootNode = rootChildrenNodes.item(i);
+			for (int rootIndex = 0; rootIndex < rootChildrenNodes.getLength(); rootIndex++) {
+				Node rootNode = rootChildrenNodes.item(rootIndex);
 				if (rootNode.getNodeType() == Node.ELEMENT_NODE) {
-					Element rootElement = (Element) rootChildrenNodes.item(i);
-					
+					Element rootElement = (Element) rootChildrenNodes.item(rootIndex);
+
 					NodeList fileNodeList = rootElement.getElementsByTagName("file");
 					NodeList filenameNodeList = rootElement.getElementsByTagName("filename");
 
 					convertNameTags(fileNodeList);
 					convertFilenameTags(filenameNodeList);
-
-					log.debug("debug");
 				}
 			}
 			writeDocument(doc, kettleFile, writer);
 
 		} catch (Exception e) {
 			log.error("ERROR: " + msgError, e);
-		} finally {
-			if (writer != null) {
-				try {
-					writer.close();
-				} catch (IOException e) {
-					log.error("Error al cerrar la transmision de FileWriter", e);
-					e.printStackTrace();
-				}
-			}
 		}
 
 		return kettleFile;
 	}
-	
+
 	private static void convertNameTags(NodeList fileNodeList) throws IOException {
 		int tam = fileNodeList.getLength();
-		for (int j = 0; j < tam; j++) {
-			Node fileNode = fileNodeList.item(j);
+		for (int fileNodeIndex = 0; fileNodeIndex < tam; fileNodeIndex++) {
+			Node fileNode = fileNodeList.item(fileNodeIndex);
 			if (fileNode != null && fileNode.getNodeType() == Node.ELEMENT_NODE) {
-				Element fileElement = (Element) fileNodeList.item(j);
+				Element fileElement = (Element) fileNodeList.item(fileNodeIndex);
 				NodeList nameNodeList = fileElement.getElementsByTagName("name");
 
 				searchNode("name", nameNodeList);
 			}
 		}
 	}
-	
+
 	private static void convertFilenameTags(NodeList filenameNodeList) throws IOException {
 		searchNode("filename", filenameNodeList);
 	}
-	
+
 	private static void searchNode(String searchNodeName, NodeList nodeList) throws DOMException, IOException {
 		int tam = nodeList.getLength();
-		for (int z = 0; z < tam; z++) {
-			Node nameNode = nodeList.item(z);
+		for (int nodeIndex = 0; nodeIndex < tam; nodeIndex++) {
+			Node nameNode = nodeList.item(nodeIndex);
 			if (nameNode.getNodeType() == Node.ELEMENT_NODE) {
-				Element nameElement = (Element) nodeList.item(z);
+				Element nameElement = (Element) nodeList.item(nodeIndex);
 				if (searchNodeName.equalsIgnoreCase(nameElement.getTagName())) {
 					tagFound(nameElement);
 				}
 			}
 		}
 	}
-	
+
 	private static void tagFound(Element element) throws DOMException, IOException {
 		File filepath = new File(element.getTextContent());
 		String fileName = FileUtilsTFG.getFileName(filepath);
 		String fileExtension = FileUtilsTFG.getFileExtension(filepath); // Si es null, se trata de un fichero de salida
 
-		if("template".equalsIgnoreCase(fileName)) { // Caso particular
+		if ("template".equalsIgnoreCase(fileName)) { // Caso particular
 			return;
 		}
-		
+
 		log.info("Ruta VIEJA encontrada dentro de la transformacion: " + filepath);
 
 		// Cambiamos la ruta del fichero para que apunte a la ruta temporal
-		List<Path> possiblePaths = findByFilenameStartsWith(new File(Constantes.TMP_DIR).toPath(), Constantes.KETTLE_PREFIX);
-		convertPathToTempFiles(possiblePaths, element, fileName, fileExtension);
-		
-//		if (llevaAdjuntos) {
-//			List<Path> possiblePaths = findByFilenameStartsWith(new File(Constantes.TMP_DIR).toPath(), Constantes.KETTLE_PREFIX);
-//			convertPathToTempFiles(possiblePaths, element, fileName, fileExtension);
-//		} else {
-//			File nuevaRuta = new File(Constantes.TMP_DIR + filepath.getName());
-//			element.setTextContent(nuevaRuta.getCanonicalPath());
-//		}
+		List<Path> allPossiblePaths = findByFilenameStartsWith(new File(Constantes.TMP_DIR).toPath(),
+				Constantes.KETTLE_PREFIX);
+		List<File> possiblePaths = getFilePathsByExtension(allPossiblePaths, fileExtension);
+		changePathToTempFiles(possiblePaths, element, fileName, fileExtension);
 
 		log.info("Ruta NUEVA dentro del ktr: " + element.getTextContent());
 	}
@@ -190,36 +173,64 @@ public class KettleUtils {
 			result = pathStream.collect(Collectors.toList());
 		}
 		return result;
-
 	}
 
-	private static void convertPathToTempFiles(List<Path> possiblePaths, Element name, String nombreFichDentroNodo,
+	private static List<File> getFilePathsByExtension(List<Path> paths, String extension) throws IOException {
+		List<File> result = new ArrayList<File>();
+
+		for (Path path : paths) {
+			File file = path.toFile();
+			if (extension == null) {
+				result.add(file);
+			} else {
+				String ext = FileUtilsTFG.getFileExtension(file);
+				if (extension.equalsIgnoreCase(ext)) {
+					result.add(file);
+				}
+			}
+		}
+
+		return result;
+	}
+
+	private static void changePathToTempFiles(List<File> possiblePaths, Element name, String nombreFichDentroNodo,
 			String fileExtension) {
-		for (Path path : possiblePaths) {
-			File pathKettleFile = new File(path.toString());
+		for (File pathKettleFile : possiblePaths) {
+
 			String pathKettleFilename = FileUtilsTFG.getFileName(pathKettleFile);
-			
 			String pathFilename = pathKettleFilename.split(Constantes.KETTLE_PREFIX)[1];
 
 			if (fileExtension == null) {
 				name.setTextContent(Constantes.TMP_DIR + nombreFichDentroNodo);
-				continue;
+				break;
 			}
 
 			if (pathFilename.startsWith(nombreFichDentroNodo)) {
 				name.setTextContent(Constantes.TMP_DIR + pathKettleFilename + "." + fileExtension);
+				break;
 			}
 		}
 	}
 
 	private static void writeDocument(Document doc, File kettleFile, FileWriter writer)
 			throws IOException, TransformerException {
-		DOMSource source = new DOMSource(doc);
-		writer = new FileWriter(kettleFile);
-		StreamResult result = new StreamResult(writer);
+		try {
+			DOMSource source = new DOMSource(doc);
+			writer = new FileWriter(kettleFile);
+			StreamResult result = new StreamResult(writer);
 
-		TransformerFactory transformerFactory = TransformerFactory.newInstance();
-		Transformer transformer = transformerFactory.newTransformer();
-		transformer.transform(source, result);
+			TransformerFactory transformerFactory = TransformerFactory.newInstance();
+			Transformer transformer = transformerFactory.newTransformer();
+			transformer.transform(source, result);
+		} finally {
+			if (writer != null) {
+				try {
+					writer.close();
+				} catch (IOException e) {
+					log.error("Error al cerrar la transmision de FileWriter", e);
+					e.printStackTrace();
+				}
+			}
+		}
 	}
 }

@@ -32,15 +32,13 @@ public class KettleProviderImpl extends KettleBaseProvider implements KettleProv
 			return ktr;
 
 		List<File> adjuntosFile = null;
-		boolean tieneAdjuntos = false;
 		
 		if (adjuntosMultipart != null && adjuntosMultipart.size() > 0) {
 			adjuntosFile = new ArrayList<>();
 			convertAndAddToFileList(adjuntosFile, adjuntosMultipart);
-			tieneAdjuntos = true;
 		}
 
-		executeKettleFile(tempKettleFile, adjuntosFile, tieneAdjuntos, logLevel, ktr);
+		executeKettleFile(tempKettleFile, adjuntosFile, logLevel, ktr);
 
 		return ktr;
 	}
@@ -52,19 +50,14 @@ public class KettleProviderImpl extends KettleBaseProvider implements KettleProv
 		if (!checkExtension(kettleFile, ktr))
 			return ktr;
 
-		boolean tieneAdjuntos = false;
-
-		if (adjuntos != null && adjuntos.size() > 0)
-			tieneAdjuntos = true;
-
-		executeKettleFile(kettleFile, adjuntos, tieneAdjuntos, logLevel, ktr);
+		executeKettleFile(kettleFile, adjuntos, logLevel, ktr);
 		
 		return ktr;
 	}
 	
-	public void executeKettleFile(File kettleFile, List<File> adjuntos, boolean tieneAdjuntos, LogLevelKettle logLevel, KettleDto ktr) {
+	public void executeKettleFile(File kettleFile, List<File> adjuntos, LogLevelKettle logLevel, KettleDto ktr) {
 		try {
-			kettleFile = KettleUtils.modifyXmlTransformationPath(kettleFile, tieneAdjuntos);
+			kettleFile = KettleUtils.modifyXmlTransformationPath(kettleFile);
 
 			execute(kettleFile, adjuntos, logLevel, ktr);
 		} finally {
