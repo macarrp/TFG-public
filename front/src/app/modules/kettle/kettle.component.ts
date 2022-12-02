@@ -3,6 +3,7 @@ import { LogLevelKettle } from 'src/app/models/enums/LogLevelKettle.enum';
 import { KettleResponse } from 'src/app/models/KettleResponse.model';
 import { ObjectResponse } from 'src/app/models/ObjectResponse.model';
 import { KettleService } from 'src/app/services/kettle.service';
+import { UiService } from 'src/app/services/ui.service';
 
 @Component({
   selector: 'app-kettle',
@@ -31,9 +32,13 @@ export class KettleComponent implements OnInit {
   // Loading spinner
   loading: boolean = false;
 
-  constructor(private readonly kettleService: KettleService) { }
+  constructor(
+    private readonly kettleService: KettleService,
+    private readonly uiService: UiService
+    ) { }
 
   ngOnInit(): void {
+    this.uiService.showSpinner();
   }
 
   onFileSelected(event) {
@@ -58,6 +63,7 @@ export class KettleComponent implements OnInit {
 
   uploadKettleTransformation() {
     this.loading = true;
+    this.uiService.showSpinner();
     this.kettleService.uploadKettleTransformation(this.file, this.fileList, this.logLevelKettleSelected).subscribe(
       (result: ObjectResponse<KettleResponse>) => {
         if (result.success) {
@@ -72,10 +78,12 @@ export class KettleComponent implements OnInit {
           this.errorMessage = result.error;
         }
         this.loading = false;
+        this.uiService.hideSpinner();
       },
       (error) => {
         this.errorMessage = 'Error al lanzar transformación';
         this.loading = false;
+        this.uiService.hideSpinner();
       })
   }
 

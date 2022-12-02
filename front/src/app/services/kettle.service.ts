@@ -11,6 +11,11 @@ import { ObjectResponse } from '../models/ObjectResponse.model';
 })
 export class KettleService {
 
+  private kettleFile: string = "kettle";
+  private logLevel: string = "logLevelKettle";
+
+  private adjuntos: string = "files";
+
   private backendUrl: string = environment.backendUrl;
 
   constructor(private readonly http: HttpClient) { }
@@ -18,11 +23,11 @@ export class KettleService {
   uploadKettleTransformation(file: File, files?: FileList, logLevelKettleSelected?: LogLevelKettle): Observable<ObjectResponse<KettleResponse>> {
     const formData = new FormData();
 
-    formData.append("kettle", file)
-    formData.append("logLevelKettle", logLevelKettleSelected);
+    formData.append(this.kettleFile, file)
+    formData.append(this.logLevel, logLevelKettleSelected);
 
     for(let i = 0; i < files?.length; i++) {
-      formData.append("files", files.item(i))
+      formData.append(this.adjuntos, files.item(i))
     }
 
     return this.http.post<ObjectResponse<KettleResponse>>(`${this.backendUrl}kettle/transformation`, formData);
@@ -31,7 +36,7 @@ export class KettleService {
   uploadKettleJob(file: File): Observable<ObjectResponse<KettleResponse>> {
     const formData = new FormData();
 
-    formData.append("kettle", file);
+    formData.append(this.kettleFile, file);
 
     return this.http.post<ObjectResponse<KettleResponse>>(`${this.backendUrl}kettle/job`, formData);
   }
