@@ -2,7 +2,8 @@ import {ChangeDetectionStrategy, ChangeDetectorRef, Component, Input} from '@ang
 
 @Component({
   templateUrl: './spinner.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  styleUrls: ['./spinner.component.scss']
 })
 export class SpinnerComponent {
   _message: string;

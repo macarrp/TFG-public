@@ -38,7 +38,7 @@ export class KettleComponent implements OnInit {
     ) { }
 
   ngOnInit(): void {
-    this.uiService.showSpinner();
+    // this.uiService.showSpinner();
   }
 
   onFileSelected(event) {
