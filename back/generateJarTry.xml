@@ -1,0 +1,21 @@
+<target name="build" depends="compile">
+    <jar destfile="target/${ant.project.name}-${spring-boot.version}.jar" compress="false">
+        <mappedresources>
+            <fileset dir="target/classes" />
+            <globmapper from="*" to="BOOT-INF/classes/*"/>
+        </mappedresources>
+        <mappedresources>
+            <fileset dir="src/main/resources" erroronmissingdir="false"/>
+            <globmapper from="*" to="BOOT-INF/classes/*"/>
+        </mappedresources>
+        <mappedresources>
+            <fileset dir="${lib.dir}/runtime" />
+            <globmapper from="*" to="BOOT-INF/lib/*"/>
+        </mappedresources>
+        <zipfileset src="${lib.dir}/loader/spring-boot-loader-jar-${spring-boot.version}.jar" />
+        <manifest>
+            <attribute name="Main-Class" value="org.springframework.boot.loader.JarLauncher" />
+            <attribute name="Start-Class" value="${start-class}" />
+        </manifest>
+    </jar>
+</target>
