@@ -1,43 +1,71 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- Set the project name, basedir and default target to be executed-->
-<project name="tfg" default="mainTarget" basedir=".">
-
-	<!-- Sets the properties here-->
-	<property name="src.dir" location="src" />
-	<property name="build.dir" location="bin" />
-	<property name="build.dir.lib" location="lib" />
+<project name="tfg" default="all" basedir="." 
+	xmlns:spring-boot="antlib:org.springframework.boot.ant"
+	xmlns:ivy="antlib:org.apache.ivy.ant">
 
 	<property environment="env" />
 
-	<target name="mavenbuild">
-		<exec executable="builds\bin\mvn.bat">
-			<arg value="-f" />
-			<arg value="pom.xml" />
-			<arg value="clean" />
-			<arg value="package" />
+	<property name="build.dir" value="build" />
+	<property name="dist.dir" value="dist" />
+	<property name="conf.dir" value="conf" />
+	<property name="lib.dir" value="lib" />
+	<property name="src.dir" value="src/main/java" />
+	<property name="target.dir" location="target" />
+	<property name="resource.dir" location="src/main/resources" />
+	<property name="classes.dir" location="${target.dir}/classes" />
+
+	<property name="compile.debug" value="true" />
+	<property name="compile.deprecation" value="false" />
+	<property name="compile.optimize" value="true" />
+
+	<taskdef resource="org/apache/ivy/ant/antlib.xml"
+	            uri="antlib:org.apache.ivy.ant" classpath="${ivy.class.path}"/>
+	    <taskdef resource="org/apache/ant/antunit/antlib.xml"
+	            uri="antlib:org.apache.ant.antunit" classpath="${antunit.class.path}"/>
+	
+	<path id="classpath">
+		<fileset dir="${basedir}/">
+			<include name="${lib.dir}/*.jar" />
+		</fileset>
+	</path>
+
+	<target name="all">
+		<ant target="clean" />
+		<ant target="setUp" />
+		<ant target="compile" />
+		<ant target="mvn" />
+	</target>
+
+	<target name="clean" description="Borrar directorios temporales">
+		<delete dir="dist" includeemptydirs="true" />
+	</target>
+	
+	<target name="setUp">
+		<mkdir dir="${classes.dir}" />
+		<javac srcdir="${src.dir}" includeantruntime="false" destdir="${classes.dir}" classpathref="classpath" />
+	</target>
+
+	<target name="compile" depends="setUp">
+	        <local name="jar" />
+	        <spring-boot:exejar destfile="${jar}" classes="${classes.dir}">
+	            <resources>
+	                <fileset dir="${resource.dir}" />
+	            </resources>
+	            <lib>
+	                <path refid="classpath" />
+	            </lib>
+	        </spring-boot:exejar>
+	    </target>
+
+	<!-- En ocasiones puede ocurrir el siguiente error en el proceso clean 
+		 Cannot access https://repo.maven.apache.org/maven2 using the registered transporter factories: WagonTransporterFactory 
+		 Java 7 usa TLS v1 por defecto y parece que esta version da en ocasiones algún error con maven repositories,
+		 para ello forzamos que use el v1.2, dejo la sentencia original comentada -->
+	<target name="mvn">
+		<exec dir="." executable="cmd">
+			<!-- <arg line="/c mvn clean install" /> -->
+			<arg line="/c ${env.MAVEN_HOME}\bin\mvn -e -Dhttps.protocols=TLSv1.2 clean package install" />
 		</exec>
 	</target>
 
-	<!-- Target for deleting the existing directories-->
-	<target name="clean">
-		<delete dir="${build.dir}" />
-	</target>
-
-	<!-- Target for creating the new directories-->
-	<target name="makedir">
-		<mkdir dir="${build.dir}" />
-		<mkdir dir="${build.dir.lib}" />
-	</target>
-
-	<!-- Target for compiling the java code-->
-	<target name="compile" depends="clean, makedir">
-		<javac srcdir="${src.dir}" destdir="${build.dir}">
-		</javac>
-	</target>
-
-	<!-- Defualt target to run all targets-->
-	<target name="mainTarget" depends="compile">
-		<description>Main target</description>
-	</target>
 
 </project>
