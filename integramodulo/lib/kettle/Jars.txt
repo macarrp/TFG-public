@@ -1,0 +1,45 @@
+----- JSON -----
+json-9.3.0.0-428 
+jsonpath-1.0.jar
+json-simple-1.1.jar
+javassist-3.20.0-GA.jar
+scannotation-1.0.2.jar
+kettle-json-plugin-core-9.3.0.0-428.jar
+StepPluginType.getInstance().getPluginFolders()
+ .add(new PluginFolder("C:/Users\\mcarro\\Downloads\\TFG_assets\\data-integration\\plugins\\kettle-json-plugin", false, true));
+
+----- Commons -----
+commons-codec => Base64
+
+Callable/Settable Future
+guava-17.0
+
+----- WebService -----
+httpclient-4.5.9
+httpcore-4.4.11
+wsdl4j
+
+JXL ?
+
+----- Pentaho Kettle BASE -----
+kettle-core
+kettle-dbdialog
+kettle-engine
+kettle-ui-swt
+metastore
+pdi-core-plugins-impl-9.3.0.0-428
+pentaho-encryption-support
+
+----- Tratamiento ficheros Microsoft -----
+poi
+poi-ooxml
+poi-ooxml-schemas
+---
+xmlbeans
+pdi-xml-plugin-core-9.3.0.0-428
+dom4j
+jaxen
+commons-math3
+
+----- JNDI Pentaho -----
+simple-jndi
