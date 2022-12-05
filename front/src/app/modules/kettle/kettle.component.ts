@@ -35,11 +35,9 @@ export class KettleComponent implements OnInit {
   constructor(
     private readonly kettleService: KettleService,
     private readonly uiService: UiService
-    ) { }
+  ) { }
 
-  ngOnInit(): void {
-    // this.uiService.showSpinner();
-  }
+  ngOnInit(): void { }
 
   onFileSelected(event) {
     this.file = event.target.files[0];
@@ -80,7 +78,7 @@ export class KettleComponent implements OnInit {
         this.loading = false;
         this.uiService.hideSpinner();
       },
-      (error) => {
+      () => {
         this.errorMessage = 'Error al lanzar transformación';
         this.loading = false;
         this.uiService.hideSpinner();
