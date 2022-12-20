@@ -2,6 +2,7 @@ package com.marcelo.tfg.provider;
 
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.web.multipart.MultipartFile;
 
@@ -50,7 +51,13 @@ public interface KettleProvider {
 	KettleDto executeTransformation(File kettleFile, List<File> adjuntos, LogLevelKettle logLevel);
 	
 	
-//	KettleDto executeJob(MultipartFile kettleFile);
-//	
-//	KettleDto executeJob(File kettleFile);
+	/**
+	 * Dado un fichero, recorre los pasos de la transformacion y cuenta el numero de veces que se ejecutan
+	 * pasos potenciales
+	 * 
+	 * @param kettleFile - El fichero a investigar
+	 * 
+	 * @return Map<String, Integer> - Como clave el nombre de paso y como valor el numero de veces que se emplea
+	 */
+	Map<String, Integer> getNumberOfInputOutputTypes(MultipartFile kettleFile);
 }

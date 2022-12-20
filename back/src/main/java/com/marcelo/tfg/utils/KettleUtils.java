@@ -8,7 +8,9 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -59,7 +61,7 @@ public class KettleUtils {
 
 		return logResult;
 	}
-	
+
 	/**
 	 * Verifica que el argumento pasado como parámetro tiene la extensión correcta
 	 * 
@@ -129,6 +131,63 @@ public class KettleUtils {
 		return kettleFile;
 	}
 
+	public static Map<String, Integer> getNumberOfInputOutputTypes(File kettleFile) throws Exception {		
+		Map<String, Integer> mapOfTypes = new HashMap<>();
+		
+		try (InputStream is = new FileInputStream(kettleFile)) {
+			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			DocumentBuilder db = dbf.newDocumentBuilder();
+			Document doc = db.parse(is);
+			
+			String stepTagName = "step";
+			String typeTagName = "type";
+			
+			NodeList rootChildrenNodes = doc.getChildNodes();
+
+			for (int rootIndex = 0; rootIndex < rootChildrenNodes.getLength(); rootIndex++) {
+				Node rootNode = rootChildrenNodes.item(rootIndex);
+				if (rootNode.getNodeType() == Node.ELEMENT_NODE) {
+					Element rootElement = (Element) rootNode;				
+					
+					NodeList stepNodeList = rootElement.getElementsByTagName(stepTagName);
+					for(int stepIndex = 0; stepIndex < stepNodeList.getLength(); stepIndex++) {
+						Node stepNode = stepNodeList.item(stepIndex);
+						if (stepNode.getNodeType() == Node.ELEMENT_NODE) {
+							Element stepElement = (Element) stepNode;		
+							
+							NodeList typeNodeList = stepElement.getElementsByTagName(typeTagName);
+							
+							int defaultTypeNode = 0; // El tipo suele ser el primero en cada paso
+							Node typeNode = typeNodeList.item(defaultTypeNode);
+							
+							if(typeNode == null)
+								continue;
+							
+							if (typeNode.getNodeType() == Node.ELEMENT_NODE) {
+								String nombreEncontrado = typeNode.getTextContent();
+								
+								Integer num = mapOfTypes.get(nombreEncontrado);
+								if(num == null)
+									num = 0;
+								
+								if(nombreEncontrado.endsWith("Input") || nombreEncontrado.endsWith("Output") || nombreEncontrado.endsWith("Lookup") 
+										|| nombreEncontrado.endsWith("InsertUpdate") || nombreEncontrado.endsWith("Delete")
+										|| nombreEncontrado.startsWith("TypeExit"))
+								mapOfTypes.put(nombreEncontrado, num + 1);
+							}
+						}
+					}
+				}
+			}
+			
+		} catch(Exception e) {
+			String str = "Error al recuperar origen de datos";
+			throw new Exception(str, e);
+		}
+		
+		return mapOfTypes;
+	}
+
 	private static void convertNameTags(NodeList fileNodeList) throws IOException {
 		int tam = fileNodeList.getLength();
 		for (int fileNodeIndex = 0; fileNodeIndex < tam; fileNodeIndex++) {
@@ -153,13 +212,13 @@ public class KettleUtils {
 			if (nameNode.getNodeType() == Node.ELEMENT_NODE) {
 				Element nameElement = (Element) nodeList.item(nodeIndex);
 				if (searchNodeName.equalsIgnoreCase(nameElement.getTagName())) {
-					tagFound(nameElement);
+					changePathWhenTagFound(nameElement);
 				}
 			}
 		}
 	}
 
-	private static void tagFound(Element element) throws DOMException, IOException {
+	private static void changePathWhenTagFound(Element element) throws DOMException, IOException {
 		File filepath = new File(element.getTextContent());
 		String fileName = FileUtilsTFG.getFileName(filepath);
 		String fileExtension = FileUtilsTFG.getFileExtension(filepath); // Si es null, se trata de un fichero de salida

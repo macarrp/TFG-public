@@ -1,6 +1,7 @@
 package com.marcelo.tfg.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -35,21 +36,15 @@ public class KettleController {
 			KettleDto ktr = kettleProvider.executeTransformation(kettle, files, logLevelKettle);
 			return MessageResponseDto.success(ktr);
 		} catch (Exception e) {
-			log.error("Error al ejecutar la transformacion de Kettle", e);
-			return MessageResponseDto.fail("Error al ejecutar la transformacion de Kettle");
+			String errorMsg = "Error al ejecutar la transformacion de Kettle";
+			log.error(errorMsg, e);
+			return MessageResponseDto.fail(errorMsg);
 		}
 	}
 	
-//	@PostMapping(value = "/job", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-//	public MessageResponseDto<KettleDto> runKettleJob(@RequestParam MultipartFile kettle) {
-//		KettleDto ktr = null;
-//		try {
-//			ktr = kettleProvider.executeJob(kettle);
-//			return MessageResponseDto.success(ktr);
-//		} catch (Exception e) {
-//			log.error("Error al ejecutar el trabajo de Kettle", e);
-//			return MessageResponseDto.fail("Error al ejecutar el trabajo de Kettle");
-//		}
-//	}
+	@PostMapping(value = "/origin", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	public Map<String, Integer> getOriginKtr(@RequestParam MultipartFile kettle) {
+		return kettleProvider.getNumberOfInputOutputTypes(kettle);
+	}
 
 }
