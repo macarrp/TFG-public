@@ -15,27 +15,29 @@ import com.marcelo.tfg.utils.KettleUtils;
 @Component
 public class KettleAudProviderImpl implements KettleAudProvider {
 
-	@Autowired
-	KettleAudRepository kettleAudRepository;
+//	@Autowired
+//	KettleAudRepository kettleAudRepository;
 	
 	@Override
 	public boolean registrarTransformacion(File ktr, String logsTransformacion) throws Exception {
-		KettleAudEntity kettleAudEntity = new KettleAudEntity();
+//		KettleAudEntity kettleAudEntity = new KettleAudEntity();
+//		
+//		kettleAudEntity.setIdUsuario(1L);
+//		kettleAudEntity.setFechaHora(new Date());
+//		
+//		String operaciones = KettleUtils.getNumberOfInputOutputTypes(ktr).toString();
+//		kettleAudEntity.setOperacionesRealizadasJson(operaciones);
+//		
+//		kettleAudEntity.setFicheroTransformacion(FileUtils.readFileToByteArray(ktr));
+//		kettleAudEntity.setLogsTransformacion(logsTransformacion);
+//		
+//		kettleAudEntity = kettleAudRepository.save(kettleAudEntity);
+//		
+//		boolean registrada = kettleAudEntity.getIdAuditoria() != null;
+//		
+//		return registrada;
 		
-		kettleAudEntity.setIdUsuario(1L);
-		kettleAudEntity.setFechaHora(new Date());
-		
-		String operaciones = KettleUtils.getNumberOfInputOutputTypes(ktr).toString();
-		kettleAudEntity.setOperacionesRealizadasJson(operaciones);
-		
-		kettleAudEntity.setFicheroTransformacion(FileUtils.readFileToByteArray(ktr));
-		kettleAudEntity.setLogsTransformacion(logsTransformacion);
-		
-		kettleAudEntity = kettleAudRepository.save(kettleAudEntity);
-		
-		boolean registrada = kettleAudEntity.getIdAuditoria() != null;
-		
-		return registrada;
+		return false;
 	}
 
 }

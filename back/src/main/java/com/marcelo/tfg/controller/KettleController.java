@@ -42,8 +42,8 @@ public class KettleController {
 		}
 	}
 	
-	@PostMapping(value = "/origin", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public Map<String, Integer> getOriginKtr(@RequestParam MultipartFile kettle) {
+	@PostMapping(value = "/test", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	public Map<String, Integer> testFunction(@RequestParam MultipartFile kettle) {
 		return kettleProvider.getNumberOfInputOutputTypes(kettle);
 	}
 
