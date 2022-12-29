@@ -25,7 +25,7 @@ public class KettleBaseProviderImpl {
 
 	/**
 	 * Verifica que la conversion se haya realizado correctamente. En caso fallido,
-	 * setea el error en el dto
+	 * setea el error en el dto pasado como parametro
 	 * 
 	 * @param kettleFile - El fichero Kettle
 	 * @param kettleDto - dto

@@ -5,10 +5,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.marcelo.tfg.dto.KettleDto;
+import com.marcelo.tfg.provider.KettleAudProvider;
 import com.marcelo.tfg.provider.KettleProvider;
 import com.marcelo.tfg.utils.FileUtilsTFG;
 import com.marcelo.tfg.utils.KettleUtils;
@@ -17,6 +19,9 @@ import com.marcelo.tfg.utils.enums.LogLevelKettle;
 @Component
 public class KettleProviderImpl extends KettleBaseProviderImpl implements KettleProvider {
 
+	@Autowired
+	KettleAudProvider kettleAudProvider;
+	
 	@Override
 	public KettleDto executeTransformation(MultipartFile kettleFile, List<MultipartFile> adjuntosMultipart,
 			LogLevelKettle logLevel) {

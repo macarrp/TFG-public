@@ -15,7 +15,6 @@ export class UiService {
   constructor(
     private readonly componentFactoryResolver: ComponentFactoryResolver,
     private readonly appRef: ApplicationRef,
-    private readonly modalService: NgbModal,
     private readonly injector: Injector
   ) {}
 
